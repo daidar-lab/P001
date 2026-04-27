@@ -1,0 +1,349 @@
+// Audit Energy — Prisma Schema
+// Mapeado do db/schema.sql
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================================================
+// ENUMS
+// ============================================================================
+
+enum StatusRelatorio {
+  carregado
+  validando
+  validado
+  validacao_falhou
+  processando
+  processado
+  pronto_revisao
+  aprovado
+  rejeitado
+  enviado
+  falha
+
+  @@map("status_relatorio")
+}
+
+enum EtapaProcessamento {
+  ingestao
+  validacao
+  analise_ia
+  geracao_pdf
+  envio_email
+
+  @@map("etapa_processamento")
+}
+
+enum EstadoProcessamento {
+  pendente
+  executando
+  sucesso
+  aviso
+  falha
+
+  @@map("estado_processamento")
+}
+
+enum EtapaFluxo {
+  conferencia
+  aprovacao
+  envio
+
+  @@map("etapa_fluxo")
+}
+
+enum EstadoFluxo {
+  pendente
+  em_revisao
+  aprovado
+  rejeitado
+  enviado
+
+  @@map("estado_fluxo")
+}
+
+enum TipoOrigem {
+  csv_direto
+  calculado
+  ia_gerado
+  manual
+  crm
+
+  @@map("tipo_origem")
+}
+
+// ============================================================================
+// TABELAS BASE
+// ============================================================================
+
+model Cliente {
+  id               String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  nome             String
+  cnpj             String   @unique
+  endereco         String?
+  cidade           String?
+  responsavel      String?
+  emailFinanceiro  String?  @map("email_financeiro")
+  metadataCrm      Json?    @map("metadata_crm")
+  criadoEm         DateTime @default(now()) @map("criado_em") @db.Timestamptz()
+  atualizadoEm     DateTime @default(now()) @updatedAt @map("atualizado_em") @db.Timestamptz()
+
+  relatorios               Relatorio[]
+  equipamentosLevantamento EquipamentoLevantamento[]
+
+  @@map("clientes")
+}
+
+model TemplatePdf {
+  id                     String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  nomeTemplate           String   @unique @map("nome_template")
+  descricao              String?
+  caminhoArquivo         String   @map("caminho_arquivo")
+  versao                 String   @default("1.0")
+  mapeamentoCampos       Json     @map("mapeamento_campos")
+  camposCalculados       Json?    @map("campos_calculados")
+  camposTabelasDinamicas Json?    @map("campos_tabelas_dinamicas")
+  ativo                  Boolean  @default(true)
+  criadoEm               DateTime @default(now()) @map("criado_em") @db.Timestamptz()
+  atualizadoEm           DateTime @default(now()) @updatedAt @map("atualizado_em") @db.Timestamptz()
+
+  relatorios Relatorio[]
+
+  @@map("templates_pdf")
+}
+
+model PlataformaOrigem {
+  id                String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  nomePlataforma    String    @unique @map("nome_plataforma")
+  descricao         String?
+  urlApi            String?   @map("url_api")
+  chaveApiEncriptada String?  @map("chave_api_encriptada")
+  statusIntegracao  String    @default("ativo") @map("status_integracao")
+  ultimoSync        DateTime? @map("ultimo_sync") @db.Timestamptz()
+  criadoEm          DateTime  @default(now()) @map("criado_em") @db.Timestamptz()
+  atualizadoEm      DateTime  @default(now()) @updatedAt @map("atualizado_em") @db.Timestamptz()
+
+  arquivosCsv ArquivoCsv[]
+
+  @@map("plataformas_origem")
+}
+
+model ArquivoCsv {
+  id                    String            @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  nomeArquivo           String            @map("nome_arquivo")
+  chaveArmazenamento    String            @unique @map("chave_armazenamento")
+  plataformaOrigemId    String?           @map("plataforma_origem_id") @db.Uuid
+  checksum              String?
+  tipoConteudo          String            @default("text/csv") @map("tipo_conteudo")
+  quantidadeLinhas      Int?              @map("quantidade_linhas")
+  carregadoPor          String?           @map("carregado_por")
+  carregadoEm           DateTime          @default(now()) @map("carregado_em") @db.Timestamptz()
+  idExternoPlataforma   String?           @map("id_externo_plataforma")
+  metadados             Json?
+
+  plataformaOrigem PlataformaOrigem? @relation(fields: [plataformaOrigemId], references: [id], onDelete: SetNull)
+  relatorios       Relatorio[]
+
+  @@map("arquivos_csv")
+}
+
+// ============================================================================
+// TABELAS PRINCIPAIS
+// ============================================================================
+
+model Relatorio {
+  id                    String           @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  codigoRelatorio       String           @unique @map("codigo_relatorio")
+  titulo                String
+  descricao             String?
+  clienteId             String?          @map("cliente_id") @db.Uuid
+  templateId            String?          @map("template_id") @db.Uuid
+  arquivoCsvId          String?          @map("arquivo_csv_id") @db.Uuid
+  chavePdfArmazenamento String?          @map("chave_pdf_armazenamento")
+  status                StatusRelatorio  @default(carregado)
+  etapaFluxoAtual       EtapaFluxo?      @map("etapa_fluxo_atual")
+  estadoFluxoAtual      EstadoFluxo      @default(pendente) @map("estado_fluxo_atual")
+  periodoReferencia     DateTime?        @map("periodo_referencia") @db.Date
+  criadoPor             String?          @map("criado_por")
+  criadoEm              DateTime         @default(now()) @map("criado_em") @db.Timestamptz()
+  atualizadoPor         String?          @map("atualizado_por")
+  atualizadoEm          DateTime         @default(now()) @updatedAt @map("atualizado_em") @db.Timestamptz()
+
+  arquivoCsv               ArquivoCsv?              @relation(fields: [arquivoCsvId], references: [id], onDelete: SetNull)
+  cliente                  Cliente?                 @relation(fields: [clienteId], references: [id], onDelete: SetNull)
+  template                 TemplatePdf?             @relation(fields: [templateId], references: [id], onDelete: SetNull)
+  faturas                  Fatura[]
+  equipamentosLevantamento EquipamentoLevantamento[]
+  analisesIa               AnaliseIa[]
+  rastreabilidadeCampos    RastreabilidadeCampo[]
+  historicoProcessamento   HistoricoProcessamento[]
+  statusFluxoTrabalho      StatusFluxoTrabalho[]
+  historicoFluxoTrabalho   HistoricoFluxoTrabalho[]
+
+  @@map("relatorios")
+}
+
+model Fatura {
+  id                     String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  relatorioId            String    @map("relatorio_id") @db.Uuid
+  numeroLinha            Int       @map("numero_linha")
+
+  // Capa do Relatório
+  periodoReferencia      DateTime? @map("periodo_referencia") @db.Date
+  clienteNome            String?   @map("cliente_nome")
+  numeroUnidade          String?   @map("numero_unidade")
+  concessionaria         String?
+
+  // Identificação da Fatura
+  periodoMedicaoInicio   DateTime? @map("periodo_medicao_inicio") @db.Date
+  periodoMedicaoFim      DateTime? @map("periodo_medicao_fim") @db.Date
+  classeTarifaria        String?   @map("classe_tarifaria")
+  dataEmissao            DateTime? @map("data_emissao") @db.Date
+
+  // Valor da Fatura
+  valorTotal             Decimal?  @map("valor_total") @db.Decimal(12, 2)
+  consumoKwh             Decimal?  @map("consumo_kwh") @db.Decimal(10, 2)
+  tarifaUnitaria         Decimal?  @map("tarifa_unitaria") @db.Decimal(10, 4)
+  tributosPercentual     Decimal?  @map("tributos_percentual") @db.Decimal(5, 2)
+  valorCip               Decimal?  @map("valor_cip") @db.Decimal(12, 2)
+  bandeiraTarifaria      String?   @map("bandeira_tarifaria")
+
+  // Análise de Consumo
+  consumoKwhMesAnterior  Decimal?  @map("consumo_kwh_mes_anterior") @db.Decimal(10, 2)
+  consumoKwhMedia        Decimal?  @map("consumo_kwh_media") @db.Decimal(10, 2)
+  diferencaPercentual    Decimal?  @map("diferenca_percentual") @db.Decimal(5, 2)
+
+  processadoEm           DateTime  @default(now()) @map("processado_em") @db.Timestamptz()
+  metadadosOrigem        Json?     @map("metadados_origem")
+
+  relatorio  Relatorio   @relation(fields: [relatorioId], references: [id], onDelete: Cascade)
+  analisesIa AnaliseIa[]
+
+  @@map("faturas")
+}
+
+model EquipamentoLevantamento {
+  id                String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  relatorioId       String   @map("relatorio_id") @db.Uuid
+  clienteId         String?  @map("cliente_id") @db.Uuid
+  tipoEquipamento   String   @map("tipo_equipamento")
+  quantidade        Int      @default(1)
+  potenciaWatts     Decimal  @map("potencia_watts") @db.Decimal(12, 2)
+  horasDia          Decimal  @map("horas_dia") @db.Decimal(5, 2)
+  diasMes           Decimal  @default(22) @map("dias_mes") @db.Decimal(5, 2)
+  consumoMensalKwh  Decimal? @map("consumo_mensal_kwh") @db.Decimal(10, 2)
+  observacoes       String?
+  levantadoPor      String?  @map("levantado_por")
+  levantadoEm       DateTime @default(now()) @map("levantado_em") @db.Timestamptz()
+  atualizadoEm      DateTime @default(now()) @updatedAt @map("atualizado_em") @db.Timestamptz()
+
+  relatorio Relatorio @relation(fields: [relatorioId], references: [id], onDelete: Cascade)
+  cliente   Cliente?  @relation(fields: [clienteId], references: [id], onDelete: SetNull)
+
+  @@map("equipamentos_levantamento")
+}
+
+model AnaliseIa {
+  id                   String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  relatorioId          String   @map("relatorio_id") @db.Uuid
+  faturaId             String?  @map("fatura_id") @db.Uuid
+  tipoAnalise          String   @map("tipo_analise")
+  anomaliasDetectadas  Json?    @map("anomalias_detectadas")
+  tendencias           String?
+  recomendacoes        Json?
+  scoreConfianca       Decimal? @map("score_confianca") @db.Decimal(3, 2)
+  processadoPor        String?  @map("processado_por")
+  processadoEm         DateTime @default(now()) @map("processado_em") @db.Timestamptz()
+  metadados            Json?
+
+  relatorio Relatorio @relation(fields: [relatorioId], references: [id], onDelete: Cascade)
+  fatura    Fatura?   @relation(fields: [faturaId], references: [id], onDelete: SetNull)
+
+  @@map("analises_ia")
+}
+
+model RastreabilidadeCampo {
+  id               String     @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  relatorioId      String     @map("relatorio_id") @db.Uuid
+  nomeCampo        String     @map("nome_campo")
+  valorPreenchido  String?    @map("valor_preenchido")
+  tipoOrigem       TipoOrigem @map("tipo_origem")
+  origemEspecifica String?    @map("origem_especifica")
+  validado         Boolean    @default(false)
+  observacoes      String?
+  criadoEm         DateTime   @default(now()) @map("criado_em") @db.Timestamptz()
+
+  relatorio Relatorio @relation(fields: [relatorioId], references: [id], onDelete: Cascade)
+
+  @@map("rastreabilidade_campos")
+}
+
+model HistoricoProcessamento {
+  id           String              @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  relatorioId  String              @map("relatorio_id") @db.Uuid
+  etapa        EtapaProcessamento
+  estado       EstadoProcessamento @default(pendente)
+  iniciadoEm   DateTime?           @map("iniciado_em") @db.Timestamptz()
+  finalizadoEm DateTime?           @map("finalizado_em") @db.Timestamptz()
+  duracaoMs    Int?                @map("duracao_ms")
+  detalhes     Json?
+  tentadoPor   String?             @map("tentado_por")
+  criadoEm     DateTime            @default(now()) @map("criado_em") @db.Timestamptz()
+
+  relatorio Relatorio @relation(fields: [relatorioId], references: [id], onDelete: Cascade)
+
+  @@map("historico_processamento")
+}
+
+model StatusFluxoTrabalho {
+  id              String     @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  relatorioId     String     @map("relatorio_id") @db.Uuid
+  etapa           EtapaFluxo
+  estado          EstadoFluxo @default(pendente)
+  atribuidoPara   String?     @map("atribuido_para")
+  ultimoComentario String?   @map("ultimo_comentario")
+  venceEm         DateTime?  @map("vence_em") @db.Timestamptz()
+  atualizadoPor   String?    @map("atualizado_por")
+  atualizadoEm    DateTime   @default(now()) @updatedAt @map("atualizado_em") @db.Timestamptz()
+  metadados       Json?
+
+  relatorio Relatorio @relation(fields: [relatorioId], references: [id], onDelete: Cascade)
+
+  @@unique([relatorioId, etapa])
+  @@map("status_fluxo_trabalho")
+}
+
+model HistoricoFluxoTrabalho {
+  id             String      @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  relatorioId    String      @map("relatorio_id") @db.Uuid
+  etapa          EtapaFluxo
+  estadoAnterior EstadoFluxo @map("estado_anterior")
+  estadoNovo     EstadoFluxo @map("estado_novo")
+  alteradoPor    String?     @map("alterado_por")
+  comentario     String?
+  alteradoEm     DateTime    @default(now()) @map("alterado_em") @db.Timestamptz()
+  metadados      Json?
+
+  relatorio Relatorio @relation(fields: [relatorioId], references: [id], onDelete: Cascade)
+
+  @@map("historico_fluxo_trabalho")
+}
+
+model LogAuditoria {
+  id         String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  tipoObjeto String    @map("tipo_objeto")
+  idObjeto   String?   @map("id_objeto") @db.Uuid
+  acao       String
+  usuario    String?
+  mensagem   String?
+  criadoEm   DateTime  @default(now()) @map("criado_em") @db.Timestamptz()
+  metadados  Json?
+
+  @@map("logs_auditoria")
+}

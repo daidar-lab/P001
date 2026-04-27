@@ -106,19 +106,6 @@ CREATE TABLE plataformas_origem (
   atualizado_em TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
--- TABELA: Plataformas de Origem (Integrações Externas)
-CREATE TABLE plataformas_origem (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  nome_plataforma TEXT NOT NULL UNIQUE,
-  descricao TEXT NULL,
-  url_api TEXT NULL,
-  chave_api_encriptada TEXT NULL,
-  status_integracao TEXT NOT NULL DEFAULT 'ativo',
-  ultimo_sync TIMESTAMPTZ NULL,
-  criado_em TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-  atualizado_em TIMESTAMPTZ NOT NULL DEFAULT NOW()
-);
-
 -- TABELA: Arquivos CSV Carregados (Com origem de plataforma)
 CREATE TABLE arquivos_csv (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),

@@ -1,0 +1,43 @@
+// Relatórios Routes
+import { Router } from 'express';
+import multer from 'multer';
+import path from 'path';
+import * as controller from './relatorios.controller';
+
+// Configuração do Multer para uploads CSV
+const storage = multer.diskStorage({
+  destination: (_req, _file, cb) => {
+    cb(null, path.join(__dirname, '../../../uploads'));
+  },
+  filename: (_req, file, cb) => {
+    const uniqueSuffix = `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
+    cb(null, `${uniqueSuffix}-${file.originalname}`);
+  },
+});
+
+const upload = multer({
+  storage,
+  limits: {
+    fileSize: (parseInt(process.env.MAX_FILE_SIZE_MB || '10') || 10) * 1024 * 1024,
+  },
+  fileFilter: (_req, file, cb) => {
+    if (file.mimetype === 'text/csv' || file.originalname.endsWith('.csv')) {
+      cb(null, true);
+    } else {
+      cb(new Error('Apenas arquivos CSV são permitidos'));
+    }
+  },
+});
+
+const router = Router();
+
+// Dashboard
+router.get('/stats', controller.estatisticas);
+
+// CRUD + Pipeline
+router.get('/', controller.listar);
+router.get('/:id', controller.buscar);
+router.get('/:id/rastreabilidade', controller.rastreabilidade);
+router.post('/upload', upload.single('arquivo'), controller.upload);
+
+export default router;
