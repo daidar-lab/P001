@@ -1,5 +1,5 @@
 // Cálculos de campos derivados para faturas de energia
-import { Decimal } from '@prisma/client/runtime/library';
+import { Prisma } from '@prisma/client';
 
 /**
  * Calcula a tarifa unitária (R$/kWh)
@@ -51,7 +51,7 @@ export function calcularTributosPercentual(
 /**
  * Converte Decimal do Prisma para number
  */
-export function decimalToNumber(value: Decimal | null | undefined): number | null {
+export function decimalToNumber(value: Prisma.Decimal | null | undefined): number | null {
   if (value == null) return null;
   return Number(value);
 }

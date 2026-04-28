@@ -97,7 +97,7 @@ export async function step2Validate(
           detalhes: {
             errors: validation.errors.slice(0, 50), // limitar a 50 erros
             totalErrors: validation.errors.length,
-          },
+          } as any,
         },
       });
     }

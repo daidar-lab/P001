@@ -1,0 +1,2 @@
+periodo_referencia,cliente_nome,numero_unidade,concessionaria,periodo_medicao_inicio,periodo_medicao_fim,classe_tarifaria,data_emissao,valor_total,consumo_kwh,valor_cip,bandeira_tarifaria,consumo_kwh_mes_anterior
+01/2026,Empresa Teste Ltda,123456,ENEL,01/01/2026,31/01/2026,Comercial B3,05/02/2026,1500.50,1200.00,50.00,Verde,1100.00

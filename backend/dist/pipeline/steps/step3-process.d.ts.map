@@ -1,0 +1,1 @@
+{"version":3,"file":"step3-process.d.ts","sourceRoot":"","sources":["../../../src/pipeline/steps/step3-process.ts"],"names":[],"mappings":"AAWA,MAAM,WAAW,aAAa;IAC5B,WAAW,EAAE,MAAM,CAAC;IACpB,gBAAgB,EAAE,MAAM,CAAC;IACzB,gBAAgB,EAAE,MAAM,CAAC;CAC1B;AAED;;;;;;GAMG;AACH,wBAAsB,YAAY,CAChC,WAAW,EAAE,MAAM,EACnB,WAAW,EAAE,MAAM,GAClB,OAAO,CAAC,aAAa,CAAC,CA6LxB"}

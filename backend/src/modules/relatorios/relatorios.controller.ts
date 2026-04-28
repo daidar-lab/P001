@@ -21,7 +21,7 @@ export async function listar(req: Request, res: Response, next: NextFunction) {
 export async function buscar(req: Request, res: Response, next: NextFunction) {
   try {
     const { id } = req.params;
-    const relatorio = await relatoriosService.buscarRelatorio(id);
+    const relatorio = await relatoriosService.buscarRelatorio(id as string);
 
     if (!relatorio) {
       throw createError('Relatório não encontrado', 404, 'RELATORIO_NOT_FOUND');
@@ -74,7 +74,7 @@ export async function upload(req: Request, res: Response, next: NextFunction) {
 export async function rastreabilidade(req: Request, res: Response, next: NextFunction) {
   try {
     const { id } = req.params;
-    const campos = await relatoriosService.buscarRastreabilidade(id);
+    const campos = await relatoriosService.buscarRastreabilidade(id as string);
     res.json({ success: true, data: campos });
   } catch (error) {
     next(error);

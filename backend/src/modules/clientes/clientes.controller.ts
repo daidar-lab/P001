@@ -18,7 +18,7 @@ export async function listar(req: Request, res: Response, next: NextFunction) {
 export async function buscar(req: Request, res: Response, next: NextFunction) {
   try {
     const { id } = req.params;
-    const cliente = await clientesService.buscarCliente(id);
+    const cliente = await clientesService.buscarCliente(id as string);
 
     if (!cliente) {
       throw createError('Cliente não encontrado', 404, 'CLIENTE_NOT_FOUND');
@@ -57,7 +57,7 @@ export async function criar(req: Request, res: Response, next: NextFunction) {
 export async function atualizar(req: Request, res: Response, next: NextFunction) {
   try {
     const { id } = req.params;
-    const cliente = await clientesService.atualizarCliente(id, req.body);
+    const cliente = await clientesService.atualizarCliente(id as string, req.body);
     res.json({ success: true, data: cliente });
   } catch (error) {
     next(error);
@@ -67,7 +67,7 @@ export async function atualizar(req: Request, res: Response, next: NextFunction)
 export async function deletar(req: Request, res: Response, next: NextFunction) {
   try {
     const { id } = req.params;
-    await clientesService.deletarCliente(id);
+    await clientesService.deletarCliente(id as string);
     res.json({ success: true, message: 'Cliente deletado com sucesso' });
   } catch (error) {
     next(error);

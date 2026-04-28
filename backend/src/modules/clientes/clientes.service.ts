@@ -80,7 +80,7 @@ export async function criarCliente(data: CreateClienteDto) {
       cidade: data.cidade,
       responsavel: data.responsavel,
       emailFinanceiro: data.emailFinanceiro,
-      metadataCrm: data.metadataCrm || undefined,
+      metadataCrm: (data.metadataCrm as any) || undefined,
     },
   });
 }
@@ -90,7 +90,7 @@ export async function atualizarCliente(id: string, data: UpdateClienteDto) {
     where: { id },
     data: {
       ...data,
-      metadataCrm: data.metadataCrm || undefined,
+      metadataCrm: (data.metadataCrm as any) || undefined,
     },
   });
 }
