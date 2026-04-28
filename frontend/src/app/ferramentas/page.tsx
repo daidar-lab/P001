@@ -101,12 +101,39 @@ export default function FerramentasPage() {
     }
   };
 
-  const handleImport = () => {
+  const [importResult, setImportResult] = useState<{sucesso: number, falhas: number, erros: string[]} | null>(null);
+
+  const handleFileImport = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !token) return;
+
     setImportStatus("uploading");
-    setTimeout(() => {
-      setImportStatus("success");
-      fetchClientes();
-    }, 2000);
+    setImportResult(null);
+
+    const formData = new FormData();
+    formData.append("arquivo", file);
+
+    try {
+      const res = await fetch("http://localhost:3001/api/clientes/importar", {
+        method: "POST",
+        headers: { "Authorization": `Bearer ${token}` },
+        body: formData,
+      });
+
+      const result = await res.json();
+      
+      if (result.success) {
+        setImportStatus("success");
+        setImportResult(result.data);
+        fetchClientes();
+      } else {
+        throw new Error(result.message || "Erro na importação");
+      }
+    } catch (err) {
+      console.error(err);
+      setImportStatus("idle");
+      alert("Erro ao importar arquivo. Verifique o formato e tente novamente.");
+    }
   };
 
   return (
@@ -176,34 +203,79 @@ export default function FerramentasPage() {
               </div>
               <h2 className="text-2xl font-bold mb-4 text-slate-900">Importação PowerHub</h2>
               <p className="text-slate-500 mb-10 max-w-md font-medium">
-                Arraste seu arquivo CSV exportado do PowerHub para carregar automaticamente a estrutura fixa dos seus clientes.
+                Arraste seu arquivo CSV ou Excel exportado do PowerHub para carregar automaticamente a estrutura fixa dos seus clientes.
               </p>
 
               {importStatus === "idle" ? (
-                <button 
-                  onClick={handleImport}
-                  className="bg-primary hover:bg-emerald-600 text-white px-10 py-4 rounded-2xl font-bold shadow-xl shadow-primary/20 flex items-center gap-3 transition-all transform hover:scale-105 active:scale-95"
-                >
-                  <Download size={20} />
-                  Selecionar Arquivo
-                </button>
+                <div className="relative">
+                  <input 
+                    type="file" 
+                    id="client-import" 
+                    className="hidden" 
+                    accept=".csv,.xlsx,.xls"
+                    onChange={handleFileImport}
+                  />
+                  <label 
+                    htmlFor="client-import"
+                    className="bg-primary hover:bg-emerald-600 text-white px-10 py-4 rounded-2xl font-bold shadow-xl shadow-primary/20 flex items-center gap-3 transition-all transform hover:scale-105 active:scale-95 cursor-pointer"
+                  >
+                    <Download size={20} />
+                    Selecionar Arquivo
+                  </label>
+                </div>
               ) : importStatus === "uploading" ? (
-                <div className="flex items-center gap-4 text-primary font-black">
-                  <Loader2 size={24} className="animate-spin" />
-                  Processando dados...
+                <div className="flex flex-col items-center gap-4 text-primary font-black">
+                  <Loader2 size={40} className="animate-spin text-primary/40" />
+                  <span>Processando e sanitizando dados...</span>
                 </div>
               ) : (
-                <div className="flex flex-col items-center gap-4 animate-in bounce-in">
+                <div className="flex flex-col items-center gap-4 animate-in bounce-in w-full max-w-md">
                   <CheckCircle2 size={48} className="text-emerald-500" />
-                  <span className="text-emerald-500 font-black text-lg">Dados Importados com Sucesso!</span>
-                  <button onClick={() => setActiveTab("gestao")} className="text-sm text-slate-400 hover:text-primary font-bold underline underline-offset-4 decoration-2">Ver clientes cadastrados</button>
+                  <span className="text-emerald-500 font-black text-xl">Importação Concluída!</span>
+                  
+                  <div className="grid grid-cols-2 gap-4 w-full mt-2">
+                    <div className="bg-emerald-50 p-4 rounded-2xl border border-emerald-100 text-center">
+                      <span className="block text-2xl font-black text-emerald-600">{importResult?.sucesso}</span>
+                      <span className="text-[10px] uppercase tracking-wider font-bold text-emerald-600/60">Sucesso</span>
+                    </div>
+                    <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100 text-center">
+                      <span className="block text-2xl font-black text-slate-400">{importResult?.falhas}</span>
+                      <span className="text-[10px] uppercase tracking-wider font-bold text-slate-400/60">Ignorados</span>
+                    </div>
+                  </div>
+
+                  {importResult && importResult.erros.length > 0 && (
+                    <div className="mt-4 w-full text-left bg-slate-50 rounded-2xl p-4 max-h-40 overflow-y-auto border border-slate-100">
+                      <h4 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-2">Detalhes dos Alertas</h4>
+                      {importResult.erros.map((erro, idx) => (
+                        <div key={idx} className="text-[11px] text-slate-500 mb-1 flex gap-2">
+                          <span className="text-primary">•</span> {erro}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  <div className="flex gap-4 mt-6">
+                    <button 
+                      onClick={() => setImportStatus("idle")}
+                      className="text-sm text-slate-400 hover:text-slate-600 font-bold transition-colors"
+                    >
+                      Importar outro arquivo
+                    </button>
+                    <button 
+                      onClick={() => setActiveTab("gestao")} 
+                      className="bg-slate-900 text-white px-6 py-2 rounded-xl text-sm font-bold shadow-lg hover:bg-slate-800 transition-all"
+                    >
+                      Ver Clientes
+                    </button>
+                  </div>
                 </div>
               )}
               
               <div className="mt-12 flex items-center gap-4 p-5 bg-slate-50 rounded-2xl border border-slate-100">
                 <AlertCircle size={20} className="text-amber-500 shrink-0" />
                 <span className="text-xs text-slate-500 text-left font-medium leading-relaxed">
-                  Certifique-se de que o arquivo contém as colunas <strong className="text-slate-700">Nome</strong> e <strong className="text-slate-700">CNPJ</strong> para uma importação correta.
+                  Aceita arquivos <strong className="text-slate-700">.xlsx</strong> e <strong className="text-slate-700">.csv</strong>. O sistema remove automaticamente a formatação científica de CNPJs e IDs.
                 </span>
               </div>
             </div>

@@ -3,6 +3,7 @@
 import prisma from '../../config/database';
 import { parseCsvFile } from '../../modules/faturas/csv-parser';
 import { parseDate, parseNumber } from '../../utils/date-utils';
+import { sanitizeScientificNotation } from '../../utils/string-utils';
 import {
   calcularTarifaUnitaria,
   calcularMediaConsumo,
@@ -55,19 +56,19 @@ export async function step3Process(
         const row = rows[i];
         const numeroLinha = i + 1;
 
-        // Campos diretos do CSV
+        // Campos diretos do CSV com higienização de notação científica
         const periodoReferencia = parseDate(row.periodo_referencia);
-        const clienteNome = row.cliente_nome?.trim() || null;
-        const numeroUnidade = row.numero_unidade?.trim() || null;
-        const concessionaria = row.concessionaria?.trim() || null;
+        const clienteNome = sanitizeScientificNotation(row.cliente_nome);
+        const numeroUnidade = sanitizeScientificNotation(row.numero_unidade);
+        const concessionaria = sanitizeScientificNotation(row.concessionaria);
         const periodoMedicaoInicio = parseDate(row.periodo_medicao_inicio);
         const periodoMedicaoFim = parseDate(row.periodo_medicao_fim);
-        const classeTarifaria = row.classe_tarifaria?.trim() || null;
+        const classeTarifaria = sanitizeScientificNotation(row.classe_tarifaria);
         const dataEmissao = parseDate(row.data_emissao);
         const valorTotal = parseNumber(row.valor_total);
         const consumoKwh = parseNumber(row.consumo_kwh);
         const valorCip = parseNumber(row.valor_cip);
-        const bandeiraTarifaria = row.bandeira_tarifaria?.trim() || null;
+        const bandeiraTarifaria = sanitizeScientificNotation(row.bandeira_tarifaria);
         const consumoKwhMesAnterior = parseNumber(row.consumo_kwh_mes_anterior);
 
         // Campos calculados

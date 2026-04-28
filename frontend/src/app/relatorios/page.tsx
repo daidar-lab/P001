@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { StatusBadge } from "@/components/StatusBadge";
-import { UploadModal } from "@/components/UploadModal";
 import { 
   Search, 
   Filter, 
@@ -12,7 +11,6 @@ import {
   ChevronRight,
   Download,
   MoreVertical,
-  Zap
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { cn } from "@/lib/utils";
@@ -22,7 +20,6 @@ export default function RelatoriosPage() {
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
   const { token } = useAuth();
   
   const [status, setStatus] = useState("");
@@ -68,25 +65,11 @@ export default function RelatoriosPage() {
   return (
     <ProtectedRoute>
       <main className="min-h-screen p-6 md:p-12 pb-32">
-        <UploadModal 
-          isOpen={isUploadModalOpen} 
-          onClose={() => setIsUploadModalOpen(false)} 
-          onSuccess={fetchRelatorios} 
-        />
-
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-10">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight mb-1 text-slate-900">Relatórios</h1>
-            <p className="text-slate-500 text-sm font-medium">Gerencie e audite suas faturas processadas.</p>
+            <h1 className="text-3xl font-bold tracking-tight mb-1 text-slate-900">Relatórios Gerados</h1>
+            <p className="text-slate-500 text-sm font-medium">Acompanhe o status e realize o envio dos relatórios finais.</p>
           </div>
-          
-          <button 
-            onClick={() => setIsUploadModalOpen(true)}
-            className="bg-primary hover:bg-emerald-600 text-white px-6 py-3 rounded-2xl flex items-center gap-2 font-bold shadow-xl shadow-primary/20 transition-all active:scale-95"
-          >
-            <Zap size={18} fill="currentColor" />
-            Novo Upload
-          </button>
         </div>
 
         {/* Filters Area */}

@@ -6,18 +6,20 @@ import { usePathname } from "next/navigation";
 import { 
   FileText, 
   LayoutDashboard, 
-  PieChart, 
-  FolderOpen, 
-  Calculator 
+  CloudUpload, 
+  LayoutGrid, 
+  Calculator,
+  Users
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const navItems = [
   { icon: LayoutDashboard, label: "Dashboard", href: "/" },
   { icon: FileText, label: "Relatórios", href: "/relatorios" },
-  { icon: PieChart, label: "Analytics", href: "/analytics" },
-  { icon: FolderOpen, label: "Arquivos", href: "/arquivos" },
+  { icon: CloudUpload, label: "Arquivos", href: "/arquivos" },
+  { icon: LayoutGrid, label: "Inventário", href: "/inventario" },
   { icon: Calculator, label: "Ferramentas", href: "/ferramentas" },
+  { icon: Users, label: "Usuários", href: "/analytics" },
 ];
 
 export function BottomNav() {

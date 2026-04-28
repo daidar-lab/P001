@@ -1,6 +1,7 @@
 // Clientes Controller — Handlers HTTP
 import { Request, Response, NextFunction } from 'express';
 import * as clientesService from './clientes.service';
+import { importarClientes } from './import-service';
 import { createError } from '../../middleware/error-handler';
 
 export async function listar(req: Request, res: Response, next: NextFunction) {
@@ -70,6 +71,25 @@ export async function deletar(req: Request, res: Response, next: NextFunction) {
     await clientesService.deletarCliente(id as string);
     res.json({ success: true, message: 'Cliente deletado com sucesso' });
   } catch (error) {
+    next(error);
+  }
+}
+
+export async function importar(req: Request, res: Response, next: NextFunction) {
+  try {
+    if (!req.file) {
+      throw createError('Arquivo de clientes é obrigatório', 400, 'MISSING_FILE');
+    }
+
+    const result = await importarClientes(req.file.buffer);
+    
+    res.json({
+      success: true,
+      message: 'Processamento de importação concluído',
+      data: result
+    });
+  } catch (error) {
+    console.error('Erro na importação de clientes:', error);
     next(error);
   }
 }
