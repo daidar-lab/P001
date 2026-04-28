@@ -10,8 +10,17 @@ export async function listar(req: Request, res: Response, next: NextFunction) {
     const limit = parseInt(req.query.limit as string) || 20;
     const status = req.query.status as string | undefined;
     const clienteId = req.query.clienteId as string | undefined;
+    const dataInicio = req.query.dataInicio as string | undefined;
+    const dataFim = req.query.dataFim as string | undefined;
 
-    const result = await relatoriosService.listarRelatorios(page, limit, status, clienteId);
+    const result = await relatoriosService.listarRelatorios(
+      page, 
+      limit, 
+      status, 
+      clienteId,
+      dataInicio,
+      dataFim
+    );
     res.json({ success: true, ...result });
   } catch (error) {
     next(error);

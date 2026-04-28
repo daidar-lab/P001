@@ -5,13 +5,21 @@ export async function listarRelatorios(
   page = 1,
   limit = 20,
   status?: string,
-  clienteId?: string
+  clienteId?: string,
+  dataInicio?: string,
+  dataFim?: string
 ) {
   const skip = (page - 1) * limit;
 
   const where: any = {};
   if (status) where.status = status;
   if (clienteId) where.clienteId = clienteId;
+  
+  if (dataInicio || dataFim) {
+    where.criadoEm = {};
+    if (dataInicio) where.criadoEm.gte = new Date(dataInicio);
+    if (dataFim) where.criadoEm.lte = new Date(dataFim);
+  }
 
   const [relatorios, total] = await Promise.all([
     prisma.relatorio.findMany({

@@ -7,6 +7,7 @@ generator client {
 
 datasource db {
   provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 // ============================================================================
@@ -82,7 +83,7 @@ enum TipoOrigem {
 // ============================================================================
 
 model Cliente {
-  id               String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  id               String   @id @default(uuid()) @db.Uuid
   nome             String
   cnpj             String   @unique
   endereco         String?
@@ -100,7 +101,7 @@ model Cliente {
 }
 
 model TemplatePdf {
-  id                     String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  id                     String   @id @default(uuid()) @db.Uuid
   nomeTemplate           String   @unique @map("nome_template")
   descricao              String?
   caminhoArquivo         String   @map("caminho_arquivo")
@@ -118,7 +119,7 @@ model TemplatePdf {
 }
 
 model PlataformaOrigem {
-  id                String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  id                String    @id @default(uuid()) @db.Uuid
   nomePlataforma    String    @unique @map("nome_plataforma")
   descricao         String?
   urlApi            String?   @map("url_api")
@@ -134,7 +135,7 @@ model PlataformaOrigem {
 }
 
 model ArquivoCsv {
-  id                    String            @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  id                    String            @id @default(uuid()) @db.Uuid
   nomeArquivo           String            @map("nome_arquivo")
   chaveArmazenamento    String            @unique @map("chave_armazenamento")
   plataformaOrigemId    String?           @map("plataforma_origem_id") @db.Uuid
@@ -157,7 +158,7 @@ model ArquivoCsv {
 // ============================================================================
 
 model Relatorio {
-  id                    String           @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  id                    String           @id @default(uuid()) @db.Uuid
   codigoRelatorio       String           @unique @map("codigo_relatorio")
   titulo                String
   descricao             String?
@@ -189,7 +190,7 @@ model Relatorio {
 }
 
 model Fatura {
-  id                     String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  id                     String    @id @default(uuid()) @db.Uuid
   relatorioId            String    @map("relatorio_id") @db.Uuid
   numeroLinha            Int       @map("numero_linha")
 
@@ -228,7 +229,7 @@ model Fatura {
 }
 
 model EquipamentoLevantamento {
-  id                String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  id                String   @id @default(uuid()) @db.Uuid
   relatorioId       String   @map("relatorio_id") @db.Uuid
   clienteId         String?  @map("cliente_id") @db.Uuid
   tipoEquipamento   String   @map("tipo_equipamento")
@@ -249,7 +250,7 @@ model EquipamentoLevantamento {
 }
 
 model AnaliseIa {
-  id                   String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  id                   String   @id @default(uuid()) @db.Uuid
   relatorioId          String   @map("relatorio_id") @db.Uuid
   faturaId             String?  @map("fatura_id") @db.Uuid
   tipoAnalise          String   @map("tipo_analise")
@@ -268,7 +269,7 @@ model AnaliseIa {
 }
 
 model RastreabilidadeCampo {
-  id               String     @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  id               String     @id @default(uuid()) @db.Uuid
   relatorioId      String     @map("relatorio_id") @db.Uuid
   nomeCampo        String     @map("nome_campo")
   valorPreenchido  String?    @map("valor_preenchido")
@@ -284,7 +285,7 @@ model RastreabilidadeCampo {
 }
 
 model HistoricoProcessamento {
-  id           String              @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  id           String              @id @default(uuid()) @db.Uuid
   relatorioId  String              @map("relatorio_id") @db.Uuid
   etapa        EtapaProcessamento
   estado       EstadoProcessamento @default(pendente)
@@ -301,7 +302,7 @@ model HistoricoProcessamento {
 }
 
 model StatusFluxoTrabalho {
-  id              String     @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  id              String     @id @default(uuid()) @db.Uuid
   relatorioId     String     @map("relatorio_id") @db.Uuid
   etapa           EtapaFluxo
   estado          EstadoFluxo @default(pendente)
@@ -319,7 +320,7 @@ model StatusFluxoTrabalho {
 }
 
 model HistoricoFluxoTrabalho {
-  id             String      @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  id             String      @id @default(uuid()) @db.Uuid
   relatorioId    String      @map("relatorio_id") @db.Uuid
   etapa          EtapaFluxo
   estadoAnterior EstadoFluxo @map("estado_anterior")
@@ -335,7 +336,7 @@ model HistoricoFluxoTrabalho {
 }
 
 model LogAuditoria {
-  id         String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  id         String    @id @default(uuid()) @db.Uuid
   tipoObjeto String    @map("tipo_objeto")
   idObjeto   String?   @map("id_objeto") @db.Uuid
   acao       String
