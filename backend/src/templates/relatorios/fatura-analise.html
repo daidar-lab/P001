@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800;900&display=swap');
+        
+        :root {
+            --primary: #10b981;
+            --primary-dark: #059669;
+            --slate-900: #0f172a;
+            --slate-600: #475569;
+            --slate-400: #94a3b8;
+            --slate-100: #f1f5f9;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 0;
+            color: var(--slate-900);
+            background: white;
+        }
+
+        .page {
+            width: 210mm;
+            height: 296mm;
+            padding: 20mm;
+            box-sizing: border-box;
+            position: relative;
+            page-break-after: always;
+            overflow: hidden;
+        }
+
+        /* Capa */
+        .cover {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            text-align: center;
+            height: 100%;
+        }
+
+        .client-logo {
+            max-width: 300px;
+            max-height: 150px;
+            margin-top: 50px;
+        }
+
+        .report-title {
+            margin-top: 100px;
+        }
+
+        .report-title h1 {
+            font-size: 36px;
+            font-weight: 800;
+            color: var(--slate-900);
+            margin-bottom: 10px;
+        }
+
+        .report-title h2 {
+            font-size: 20px;
+            font-weight: 400;
+            color: var(--primary);
+            letter-spacing: 2px;
+        }
+
+        .cover-image {
+            width: 100%;
+            height: 350px;
+            object-fit: cover;
+            border-radius: 40px;
+            margin: 50px 0;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+
+        .cover-footer {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            border-top: 1px solid var(--slate-100);
+            padding-top: 30px;
+        }
+
+        .meta-info {
+            text-align: left;
+        }
+
+        .meta-info span {
+            display: block;
+            font-size: 10px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: var(--slate-400);
+        }
+
+        .meta-info p {
+            font-size: 16px;
+            font-weight: 700;
+            margin: 5px 0 0 0;
+        }
+
+        .energymax-logo {
+            width: 100px;
+        }
+
+        /* Conteúdo Geral */
+        h3 {
+            font-size: 24px;
+            font-weight: 800;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        h3::before {
+            content: '';
+            width: 15px;
+            height: 15px;
+            background: var(--primary);
+            border-radius: 4px;
+        }
+
+        .section-box {
+            background: var(--slate-100);
+            border-radius: 24px;
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+
+        .grid-info {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+
+        .info-item label {
+            font-size: 10px;
+            font-weight: 900;
+            text-transform: uppercase;
+            color: var(--slate-400);
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .info-item span {
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+        /* Tabelas */
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            margin: 20px 0;
+        }
+
+        th {
+            background: var(--slate-900);
+            color: white;
+            padding: 15px;
+            font-size: 10px;
+            font-weight: 900;
+            text-transform: uppercase;
+            text-align: left;
+        }
+
+        th:first-child { border-radius: 12px 0 0 12px; }
+        th:last-child { border-radius: 0 12px 12px 0; }
+
+        td {
+            padding: 15px;
+            font-size: 12px;
+            border-bottom: 1px solid var(--slate-100);
+        }
+
+        tr.total {
+            font-weight: 800;
+            background: var(--primary);
+            color: white;
+        }
+
+        /* Análise IA */
+        .ia-conclusion {
+            line-height: 1.6;
+            font-size: 14px;
+            color: var(--slate-600);
+            text-align: justify;
+        }
+
+        .ia-conclusion p {
+            margin-bottom: 15px;
+        }
+
+        .highlight-box {
+            border-left: 4px solid var(--primary);
+            padding-left: 20px;
+            margin: 20px 0;
+            font-style: italic;
+        }
+
+        /* Gráfico Placeholder (Renderizado via JS no Puppeteer ou Imagem) */
+        .chart-container {
+            width: 100%;
+            height: 250px;
+            background: white;
+            border-radius: 20px;
+            margin: 20px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid var(--slate-100);
+        }
+
+        .footer-page {
+            position: absolute;
+            bottom: 20mm;
+            left: 20mm;
+            right: 20mm;
+            display: flex;
+            justify-content: space-between;
+            font-size: 10px;
+            color: var(--slate-400);
+            border-top: 1px solid var(--slate-100);
+            padding-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <!-- PÁGINA 1: CAPA -->
+    <div class="page">
+        <div class="cover">
+            <img src="{{clienteLogo}}" class="client-logo" alt="Logo Cliente">
+            
+            <div class="report-title">
+                <h1>Relatório de Análise de Fatura de Energia</h1>
+                <h2>EFICIÊNCIA ENERGÉTICA E ENERGIA SOLAR</h2>
+            </div>
+
+            <img src="{{coverImage}}" class="cover-image" alt="Energia Solar">
+
+            <div class="cover-footer">
+                <div class="meta-info">
+                    <span>Mês de Referência</span>
+                    <p>{{periodoReferencia}}</p>
+                    <br>
+                    <span>Responsável</span>
+                    <p>{{responsavel}}</p>
+                </div>
+                <img src="https://auditenergy.com.br/logo.png" class="energymax-logo" alt="EnergyMax">
+            </div>
+        </div>
+    </div>
+
+    <!-- PÁGINA 2: IDENTIFICAÇÃO -->
+    <div class="page">
+        <h3>Identificação</h3>
+        <div class="section-box">
+            <div class="grid-info">
+                <div class="info-item">
+                    <label>Cliente / Razão Social</label>
+                    <span>{{clienteNome}}</span>
+                </div>
+                <div class="info-item">
+                    <label>CNPJ</label>
+                    <span>{{clienteCnpj}}</span>
+                </div>
+                <div class="info-item">
+                    <label>Concessionária</label>
+                    <span>{{concessionaria}}</span>
+                </div>
+                <div class="info-item">
+                    <label>Unidade (UC)</label>
+                    <span>{{numeroUnidade}}</span>
+                </div>
+                <div class="info-item">
+                    <label>Período de Medição</label>
+                    <span>{{periodoMedicao}}</span>
+                </div>
+                <div class="info-item">
+                    <label>Enquadramento Tarifário</label>
+                    <span>{{enquadramento}}</span>
+                </div>
+            </div>
+        </div>
+
+        <h3>Objetivo</h3>
+        <p style="font-size: 14px; color: var(--slate-600); line-height: 1.6;">
+            Esta análise pretende verificar possíveis inconsistências na fatura de energia e identificar oportunidades de economia, bem como criar dados e valores para comparação e auditoria mensal.
+        </p>
+
+        <div class="footer-page">
+            <span>Audit Energy — Relatório Técnico</span>
+            <span>Página 2</span>
+        </div>
+    </div>
+
+    <!-- PÁGINA 3: ANÁLISE DE CONSUMO -->
+    <div class="page">
+        <h3>Análise de Faturas</h3>
+        
+        <table>
+            <thead>
+                <tr>
+                    <th>Grandeza</th>
+                    <th>Registrado</th>
+                    <th>Faturado</th>
+                    <th>Tarifa (R$)</th>
+                    <th>Valor (R$)</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{#each faturasItem}}
+                <tr>
+                    <td>{{descricao}}</td>
+                    <td>{{registrado}} {{unidade}}</td>
+                    <td>{{faturado}} {{unidade}}</td>
+                    <td>{{tarifa}}</td>
+                    <td>{{valor}}</td>
+                </tr>
+                {{/each}}
+                <tr class="total">
+                    <td colspan="4">TOTAL DA CONCESSIONÁRIA</td>
+                    <td>R$ {{valorTotal}}</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3>Histórico de Consumo</h3>
+        <div class="chart-container">
+            <!-- Aqui entrará o gráfico gerado ou placeholder -->
+            <p style="color: var(--slate-400); font-size: 12px;">[ Gráfico de Evolução de Consumo ]</p>
+        </div>
+
+        <div class="highlight-box">
+            <p style="margin: 0; font-size: 13px; color: var(--slate-900);">
+                A tarifa unitária total corresponde a <strong>R$ {{tarifaUnitaria}}/kWh</strong> (com tributos). No período analisado, os tributos incidentes totalizaram <strong>{{percentualTributos}}%</strong> do valor total da fatura.
+            </p>
+        </div>
+
+        <div class="footer-page">
+            <span>Audit Energy — Relatório Técnico</span>
+            <span>Página 3</span>
+        </div>
+    </div>
+
+    <!-- PÁGINA 4: CHECKLIST EQUIPAMENTOS -->
+    <div class="page">
+        <h3>Checklist de Equipamentos</h3>
+        <p style="font-size: 12px; color: var(--slate-500); margin-bottom: 20px;">
+            Comparativo entre o levantamento técnico (Inventário) e o consumo real registrado pela concessionária.
+        </p>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Equipamento</th>
+                    <th>Qtd</th>
+                    <th>Potência (W)</th>
+                    <th>Horas/Dia</th>
+                    <th>kWh/Mês (Est.)</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{#each equipamentos}}
+                <tr>
+                    <td>{{descricao}}</td>
+                    <td>{{quantidade}}</td>
+                    <td>{{potenciaWatts}}W</td>
+                    <td>{{horasDia}}h</td>
+                    <td>{{consumoMensalKwh}} kWh</td>
+                </tr>
+                {{/each}}
+                <tr class="total">
+                    <td colspan="4">CONSUMO ESTIMADO TOTAL</td>
+                    <td>{{consumoEstimadoTotal}} kWh</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="section-box" style="margin-top: 40px; background: #fff; border: 2px solid var(--primary);">
+            <h4 style="margin: 0 0 10px 0; color: var(--primary); font-size: 14px; text-transform: uppercase;">Diferença Técnica</h4>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <p style="margin: 0; font-size: 12px; color: var(--slate-400);">Consumo Real (Fatura)</p>
+                    <p style="margin: 5px 0 0 0; font-size: 20px; font-weight: 800;">{{consumoRealTotal}} kWh</p>
+                </div>
+                <div style="text-align: right;">
+                    <p style="margin: 0; font-size: 12px; color: var(--slate-400);">Divergência</p>
+                    <p style="margin: 5px 0 0 0; font-size: 20px; font-weight: 800; color: {{divergenciaCor}};">{{percentualDivergencia}}%</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer-page">
+            <span>Audit Energy — Relatório Técnico</span>
+            <span>Página 4</span>
+        </div>
+    </div>
+
+    <!-- PÁGINA 5: CONCLUSÃO IA -->
+    <div class="page">
+        <h3>Análise de Especialista (IA)</h3>
+        <div class="ia-conclusion">
+            {{{conclusaoIa}}}
+        </div>
+
+        <div style="margin-top: 100px; text-align: center; border-top: 1px solid var(--slate-100); padding-top: 50px;">
+            <p style="font-size: 10px; color: var(--slate-400); text-transform: uppercase; letter-spacing: 2px;">Documento gerado automaticamente pela plataforma</p>
+            <h2 style="font-weight: 900; color: var(--primary); margin-top: 10px;">AUDIT ENERGY</h2>
+        </div>
+
+        <div class="footer-page">
+            <span>Audit Energy — Relatório Técnico</span>
+            <span>Página 5</span>
+        </div>
+    </div>
+</body>
+</html>

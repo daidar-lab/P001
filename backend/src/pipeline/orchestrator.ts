@@ -54,6 +54,17 @@ export async function runPipeline(
     result.stoppedAtStep = 3;
     console.log(`[PIPELINE] Etapa 3 concluída — ${result.process.faturasInseridas} faturas`);
 
+    // ─── ETAPA 4: Geração de Relatório PDF (Novo) ───
+    try {
+      console.log('[PIPELINE] Etapa 4: Gerando Relatório PDF...');
+      const { gerarRelatorioPdf } = await import('../modules/relatorios/relatorio-pdf.service');
+      await gerarRelatorioPdf({ relatorioId: result.ingest.relatorioId });
+      console.log('[PIPELINE] PDF gerado com sucesso!');
+    } catch (pdfError) {
+      console.error('[PIPELINE] Erro ao gerar PDF automaticamente:', pdfError);
+      // Não falhamos o pipeline todo por causa do PDF, mas registramos o erro
+    }
+
     // Pipeline v1 concluído com sucesso
     result.success = true;
     console.log(`[PIPELINE] Pipeline concluído com sucesso!`);

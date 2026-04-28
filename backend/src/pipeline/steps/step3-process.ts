@@ -4,6 +4,7 @@ import prisma from '../../config/database';
 import { parseCsvFile } from '../../modules/faturas/csv-parser';
 import { parseDate, parseNumber } from '../../utils/date-utils';
 import { sanitizeScientificNotation } from '../../utils/string-utils';
+import { getMappedValue } from '../../modules/faturas/csv-validator';
 import {
   calcularTarifaUnitaria,
   calcularMediaConsumo,
@@ -56,20 +57,34 @@ export async function step3Process(
         const row = rows[i];
         const numeroLinha = i + 1;
 
-        // Campos diretos do CSV com higienização de notação científica
-        const periodoReferencia = parseDate(row.periodo_referencia);
-        const clienteNome = sanitizeScientificNotation(row.cliente_nome);
-        const numeroUnidade = sanitizeScientificNotation(row.numero_unidade);
-        const concessionaria = sanitizeScientificNotation(row.concessionaria);
-        const periodoMedicaoInicio = parseDate(row.periodo_medicao_inicio);
-        const periodoMedicaoFim = parseDate(row.periodo_medicao_fim);
-        const classeTarifaria = sanitizeScientificNotation(row.classe_tarifaria);
-        const dataEmissao = parseDate(row.data_emissao);
-        const valorTotal = parseNumber(row.valor_total);
-        const consumoKwh = parseNumber(row.consumo_kwh);
-        const valorCip = parseNumber(row.valor_cip);
-        const bandeiraTarifaria = sanitizeScientificNotation(row.bandeira_tarifaria);
-        const consumoKwhMesAnterior = parseNumber(row.consumo_kwh_mes_anterior);
+        // Campos diretos do CSV com mapeamento flexível e higienização
+        const rawPeriodoReferencia = getMappedValue(row, 'periodo_referencia');
+        const rawClienteNome = getMappedValue(row, 'cliente_nome');
+        const rawNumeroUnidade = getMappedValue(row, 'numero_unidade');
+        const rawConcessionaria = getMappedValue(row, 'concessionaria');
+        const rawPeriodoMedicaoInicio = getMappedValue(row, 'periodo_medicao_inicio');
+        const rawPeriodoMedicaoFim = getMappedValue(row, 'periodo_medicao_fim');
+        const rawClasseTarifaria = getMappedValue(row, 'classe_tarifaria');
+        const rawDataEmissao = getMappedValue(row, 'data_emissao');
+        const rawValorTotal = getMappedValue(row, 'valor_total');
+        const rawConsumoKwh = getMappedValue(row, 'consumo_kwh');
+        const rawValorCip = getMappedValue(row, 'valor_cip');
+        const rawBandeiraTarifaria = getMappedValue(row, 'bandeira_tarifaria');
+        const rawConsumoKwhMesAnterior = getMappedValue(row, 'consumo_kwh_mes_anterior');
+
+        const periodoReferencia = parseDate(rawPeriodoReferencia || '');
+        const clienteNome = sanitizeScientificNotation(rawClienteNome || '');
+        const numeroUnidade = sanitizeScientificNotation(rawNumeroUnidade || '');
+        const concessionaria = sanitizeScientificNotation(rawConcessionaria || '');
+        const periodoMedicaoInicio = parseDate(rawPeriodoMedicaoInicio || '');
+        const periodoMedicaoFim = parseDate(rawPeriodoMedicaoFim || '');
+        const classeTarifaria = sanitizeScientificNotation(rawClasseTarifaria || '');
+        const dataEmissao = parseDate(rawDataEmissao || '');
+        const valorTotal = parseNumber(rawValorTotal || '0');
+        const consumoKwh = parseNumber(rawConsumoKwh || '0');
+        const valorCip = parseNumber(rawValorCip || '0');
+        const bandeiraTarifaria = sanitizeScientificNotation(rawBandeiraTarifaria || '');
+        const consumoKwhMesAnterior = parseNumber(rawConsumoKwhMesAnterior || '0');
 
         // Campos calculados
         const tarifaUnitaria =
@@ -125,19 +140,19 @@ export async function step3Process(
         // Registrar rastreabilidade de campos
         const camposRastreabilidade = [
           // Campos diretos
-          { campo: 'periodo_referencia', valor: row.periodo_referencia, tipo: 'csv_direto' as const },
-          { campo: 'cliente_nome', valor: row.cliente_nome, tipo: 'csv_direto' as const },
-          { campo: 'numero_unidade', valor: row.numero_unidade, tipo: 'csv_direto' as const },
-          { campo: 'concessionaria', valor: row.concessionaria, tipo: 'csv_direto' as const },
-          { campo: 'periodo_medicao_inicio', valor: row.periodo_medicao_inicio, tipo: 'csv_direto' as const },
-          { campo: 'periodo_medicao_fim', valor: row.periodo_medicao_fim, tipo: 'csv_direto' as const },
-          { campo: 'classe_tarifaria', valor: row.classe_tarifaria, tipo: 'csv_direto' as const },
-          { campo: 'data_emissao', valor: row.data_emissao, tipo: 'csv_direto' as const },
-          { campo: 'valor_total', valor: row.valor_total, tipo: 'csv_direto' as const },
-          { campo: 'consumo_kwh', valor: row.consumo_kwh, tipo: 'csv_direto' as const },
-          { campo: 'valor_cip', valor: row.valor_cip, tipo: 'csv_direto' as const },
-          { campo: 'bandeira_tarifaria', valor: row.bandeira_tarifaria, tipo: 'csv_direto' as const },
-          { campo: 'consumo_kwh_mes_anterior', valor: row.consumo_kwh_mes_anterior, tipo: 'csv_direto' as const },
+          { campo: 'periodo_referencia', valor: rawPeriodoReferencia, tipo: 'csv_direto' as const },
+          { campo: 'cliente_nome', valor: rawClienteNome, tipo: 'csv_direto' as const },
+          { campo: 'numero_unidade', valor: rawNumeroUnidade, tipo: 'csv_direto' as const },
+          { campo: 'concessionaria', valor: rawConcessionaria, tipo: 'csv_direto' as const },
+          { campo: 'periodo_medicao_inicio', valor: rawPeriodoMedicaoInicio, tipo: 'csv_direto' as const },
+          { campo: 'periodo_medicao_fim', valor: rawPeriodoMedicaoFim, tipo: 'csv_direto' as const },
+          { campo: 'classe_tarifaria', valor: rawClasseTarifaria, tipo: 'csv_direto' as const },
+          { campo: 'data_emissao', valor: rawDataEmissao, tipo: 'csv_direto' as const },
+          { campo: 'valor_total', valor: rawValorTotal, tipo: 'csv_direto' as const },
+          { campo: 'consumo_kwh', valor: rawConsumoKwh, tipo: 'csv_direto' as const },
+          { campo: 'valor_cip', valor: rawValorCip, tipo: 'csv_direto' as const },
+          { campo: 'bandeira_tarifaria', valor: rawBandeiraTarifaria, tipo: 'csv_direto' as const },
+          { campo: 'consumo_kwh_mes_anterior', valor: rawConsumoKwhMesAnterior, tipo: 'csv_direto' as const },
           // Campos calculados
           { campo: 'tarifa_unitaria', valor: tarifaUnitaria?.toString() || null, tipo: 'calculado' as const },
           { campo: 'consumo_kwh_media', valor: mediaConsumo?.toString() || null, tipo: 'calculado' as const },

@@ -98,3 +98,43 @@ export async function estatisticas(_req: Request, res: Response, next: NextFunct
     next(error);
   }
 }
+
+export async function downloadPdf(req: Request, res: Response, next: NextFunction) {
+  try {
+    const { id } = req.params;
+    const relatorio = await relatoriosService.buscarRelatorio(id);
+
+    if (!relatorio) {
+      throw createError('Relatório não encontrado', 404, 'RELATORIO_NOT_FOUND');
+    }
+
+    const fs = await import('fs');
+    const path = await import('path');
+    const pdfPath = path.join(__dirname, `../../../uploads/pdfs/relatorio-${relatorio.codigoRelatorio}.pdf`);
+
+    if (!fs.existsSync(pdfPath)) {
+      throw createError('Arquivo PDF não encontrado. Tente gerar novamente.', 404, 'PDF_NOT_FOUND');
+    }
+
+    res.download(pdfPath, `Relatorio-Audit-${relatorio.codigoRelatorio}.pdf`);
+  } catch (error) {
+    next(error);
+  }
+}
+
+export async function gerarManual(req: Request, res: Response, next: NextFunction) {
+  try {
+    const { id } = req.params;
+    const { gerarRelatorioPdf } = await import('./relatorio-pdf.service');
+    
+    const pdfPath = await gerarRelatorioPdf({ relatorioId: id });
+    
+    res.json({ 
+      success: true, 
+      message: 'PDF gerado com sucesso',
+      path: pdfPath 
+    });
+  } catch (error) {
+    next(error);
+  }
+}

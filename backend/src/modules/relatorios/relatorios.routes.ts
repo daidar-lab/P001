@@ -38,6 +38,8 @@ router.get('/stats', controller.estatisticas);
 router.get('/', controller.listar);
 router.get('/:id', controller.buscar);
 router.get('/:id/rastreabilidade', controller.rastreabilidade);
+router.get('/:id/pdf', controller.downloadPdf);
+router.post('/:id/gerar-pdf', controller.gerarManual);
 router.post('/upload', upload.single('arquivo'), controller.upload);
 
 export default router;

@@ -58,6 +58,33 @@ export default function RelatoriosPage() {
     setLoading(false);
   };
 
+  const handleDownload = async (id: string, codigo: string) => {
+    try {
+      const res = await fetch(`http://localhost:3001/api/relatorios/${id}/pdf`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      
+      if (!res.ok) {
+        alert("O PDF ainda não foi gerado ou ocorreu um erro.");
+        return;
+      }
+
+      const blob = await res.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `Relatorio-Audit-${codigo}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+    } catch (err) {
+      console.error("Erro ao baixar PDF:", err);
+    }
+  };
+
   useEffect(() => {
     fetchRelatorios();
   }, [page, status, dateRange, token]);
@@ -162,7 +189,11 @@ export default function RelatoriosPage() {
                       </td>
                       <td className="px-6 py-5 text-right">
                         <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                          <button className="p-2.5 bg-slate-100 text-slate-400 hover:bg-primary hover:text-white rounded-xl transition-all" title="Download PDF">
+                          <button 
+                            onClick={() => handleDownload(rel.id, rel.codigoRelatorio)}
+                            className="p-2.5 bg-slate-100 text-slate-400 hover:bg-primary hover:text-white rounded-xl transition-all" 
+                            title="Download PDF"
+                          >
                             <Download size={18} />
                           </button>
                           <button className="p-2.5 bg-slate-100 text-slate-400 hover:bg-slate-200 hover:text-slate-900 rounded-xl transition-all">
