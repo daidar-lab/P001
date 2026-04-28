@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { Plus, Trash2, Edit2, Check, X, Loader2 } from "lucide-react";
+import { Plus, Trash2, Edit2, Check, X, Loader2, Save } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface Equipamento {
@@ -84,8 +84,8 @@ export function EquipamentosTable({ equipamentos, onAdd, onDelete, onUpdate, loa
               </tr>
             </thead>
             <tbody className="divide-y divide-white/5">
-              {/* Row para novo cadastro */}
-              <tr className="bg-primary/5 group transition-all">
+              {/* Cadastro Row */}
+              <tr className="bg-primary/10 group transition-all">
                 <td className="px-6 py-4">
                   <input 
                     type="text" 
@@ -95,7 +95,7 @@ export function EquipamentosTable({ equipamentos, onAdd, onDelete, onUpdate, loa
                     onChange={e => setNewItem({...newItem, descricao: e.target.value})}
                   />
                 </td>
-                <td className="px-6 py-4">
+                <td className="px-6 py-4 text-center">
                   <input 
                     type="number" 
                     className="w-20 mx-auto bg-white/5 border border-white/10 rounded-xl px-2 py-2 text-sm text-center focus:outline-none"
@@ -103,7 +103,7 @@ export function EquipamentosTable({ equipamentos, onAdd, onDelete, onUpdate, loa
                     onChange={e => setNewItem({...newItem, quantidade: parseInt(e.target.value) || 0})}
                   />
                 </td>
-                <td className="px-6 py-4">
+                <td className="px-6 py-4 text-center">
                   <input 
                     type="number" 
                     className="w-24 mx-auto bg-white/5 border border-white/10 rounded-xl px-2 py-2 text-sm text-center focus:outline-none"
@@ -111,7 +111,7 @@ export function EquipamentosTable({ equipamentos, onAdd, onDelete, onUpdate, loa
                     onChange={e => setNewItem({...newItem, potenciaWatts: parseFloat(e.target.value) || 0})}
                   />
                 </td>
-                <td className="px-6 py-4">
+                <td className="px-6 py-4 text-center">
                   <input 
                     type="number" 
                     step="0.5"
@@ -120,7 +120,7 @@ export function EquipamentosTable({ equipamentos, onAdd, onDelete, onUpdate, loa
                     onChange={e => setNewItem({...newItem, horasDia: parseFloat(e.target.value) || 0})}
                   />
                 </td>
-                <td className="px-6 py-4">
+                <td className="px-6 py-4 text-center">
                   <input 
                     type="number" 
                     className="w-20 mx-auto bg-white/5 border border-white/10 rounded-xl px-2 py-2 text-sm text-center focus:outline-none"
@@ -142,98 +142,93 @@ export function EquipamentosTable({ equipamentos, onAdd, onDelete, onUpdate, loa
                 </td>
               </tr>
 
-              {/* Listagem com Edição */}
-              {loading && equipamentos.length === 0 ? (
+              {/* Listagem */}
+              {equipamentos.map((item) => (
+                <tr key={item.id} className={cn("hover:bg-white/[0.02] transition-colors group", editingId === item.id && "bg-white/5")}>
+                  {editingId === item.id ? (
+                    <>
+                      <td className="px-6 py-4">
+                        <input 
+                          type="text" 
+                          className="w-full bg-white/10 border border-white/20 rounded-lg px-3 py-1.5 text-sm focus:ring-1 focus:ring-primary"
+                          value={editItem.descricao}
+                          onChange={e => setEditItem({...editItem, descricao: e.target.value})}
+                        />
+                      </td>
+                      <td className="px-6 py-4 text-center">
+                        <input 
+                          type="number" 
+                          className="w-16 mx-auto bg-white/10 border border-white/20 rounded-lg px-2 py-1.5 text-sm text-center"
+                          value={editItem.quantidade}
+                          onChange={e => setEditItem({...editItem, quantidade: parseInt(e.target.value) || 0})}
+                        />
+                      </td>
+                      <td className="px-6 py-4 text-center">
+                        <input 
+                          type="number" 
+                          className="w-24 mx-auto bg-white/10 border border-white/20 rounded-lg px-2 py-1.5 text-sm text-center"
+                          value={editItem.potenciaWatts}
+                          onChange={e => setEditItem({...editItem, potenciaWatts: parseFloat(e.target.value) || 0})}
+                        />
+                      </td>
+                      <td className="px-6 py-4 text-center">
+                        <input 
+                          type="number" 
+                          step="0.5"
+                          className="w-20 mx-auto bg-white/10 border border-white/20 rounded-lg px-2 py-1.5 text-sm text-center"
+                          value={editItem.horasDia}
+                          onChange={e => setEditItem({...editItem, horasDia: parseFloat(e.target.value) || 0})}
+                        />
+                      </td>
+                      <td className="px-6 py-4 text-center">
+                        <input 
+                          type="number" 
+                          className="w-20 mx-auto bg-white/10 border border-white/20 rounded-lg px-2 py-1.5 text-sm text-center"
+                          value={editItem.diasMes}
+                          onChange={e => setEditItem({...editItem, diasMes: parseInt(e.target.value) || 0})}
+                        />
+                      </td>
+                      <td className="px-6 py-4 text-center font-bold text-indigo-400 text-sm">
+                        {calculateKwh(editItem).toFixed(2)}
+                      </td>
+                      <td className="px-6 py-4 text-right">
+                        <div className="flex justify-end gap-2">
+                          <button onClick={saveEdit} title="Salvar" className="p-2 bg-emerald-500/20 text-emerald-500 hover:bg-emerald-500 hover:text-white rounded-lg transition-all"><Check size={16} /></button>
+                          <button onClick={cancelEdit} title="Cancelar" className="p-2 bg-white/10 text-white hover:bg-white/20 rounded-lg transition-all"><X size={16} /></button>
+                          <button onClick={() => onDelete(item.id)} title="Excluir" className="p-2 bg-rose-500/10 text-rose-500 hover:bg-rose-500 hover:text-white rounded-lg transition-all"><Trash2 size={16} /></button>
+                        </div>
+                      </td>
+                    </>
+                  ) : (
+                    <>
+                      <td className="px-6 py-4 text-sm font-medium">{item.descricao}</td>
+                      <td className="px-6 py-4 text-center text-sm">{item.quantidade}</td>
+                      <td className="px-6 py-4 text-center text-sm">{item.potenciaWatts.toString()}</td>
+                      <td className="px-6 py-4 text-center text-sm">{item.horasDia.toString()}</td>
+                      <td className="px-6 py-4 text-center text-sm">{item.diasMes}</td>
+                      <td className="px-6 py-4 text-center text-sm font-bold text-indigo-400">
+                        {Number(item.consumoMensalKwh).toFixed(2)}
+                      </td>
+                      <td className="px-6 py-4 text-right">
+                        <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <button onClick={() => startEdit(item)} title="Editar" className="p-2 bg-blue-500/10 text-blue-400 hover:bg-blue-500 hover:text-white rounded-lg transition-all"><Edit2 size={16} /></button>
+                          <button onClick={() => onDelete(item.id)} title="Excluir" className="p-2 bg-rose-500/10 text-rose-500 hover:bg-rose-500 hover:text-white rounded-lg transition-all"><Trash2 size={16} /></button>
+                        </div>
+                      </td>
+                    </>
+                  )}
+                </tr>
+              ))}
+
+              {equipamentos.length === 0 && (
                 <tr>
-                  <td colSpan={7} className="px-6 py-12 text-center text-muted-foreground animate-pulse">
-                    Sincronizando inventário...
+                  <td colSpan={7} className="px-6 py-12 text-center text-muted-foreground italic">
+                    Nenhum equipamento cadastrado. Comece adicionando um acima.
                   </td>
                 </tr>
-              ) : equipamentos.length === 0 ? (
-                <tr>
-                  <td colSpan={7} className="px-6 py-12 text-center text-muted-foreground">
-                    Nenhum equipamento cadastrado para este cliente.
-                  </td>
-                </tr>
-              ) : (
-                equipamentos.map((item) => (
-                  <tr key={item.id} className={cn("hover:bg-white/[0.02] transition-colors", editingId === item.id && "bg-white/5")}>
-                    {editingId === item.id ? (
-                      <>
-                        <td className="px-6 py-4">
-                          <input 
-                            type="text" 
-                            className="w-full bg-white/10 border border-white/20 rounded-lg px-3 py-1.5 text-sm"
-                            value={editItem.descricao}
-                            onChange={e => setEditItem({...editItem, descricao: e.target.value})}
-                          />
-                        </td>
-                        <td className="px-6 py-4">
-                          <input 
-                            type="number" 
-                            className="w-16 mx-auto bg-white/10 border border-white/20 rounded-lg px-2 py-1.5 text-sm text-center"
-                            value={editItem.quantidade}
-                            onChange={e => setEditItem({...editItem, quantidade: parseInt(e.target.value) || 0})}
-                          />
-                        </td>
-                        <td className="px-6 py-4">
-                          <input 
-                            type="number" 
-                            className="w-24 mx-auto bg-white/10 border border-white/20 rounded-lg px-2 py-1.5 text-sm text-center"
-                            value={editItem.potenciaWatts}
-                            onChange={e => setEditItem({...editItem, potenciaWatts: parseFloat(e.target.value) || 0})}
-                          />
-                        </td>
-                        <td className="px-6 py-4">
-                          <input 
-                            type="number" 
-                            step="0.5"
-                            className="w-20 mx-auto bg-white/10 border border-white/20 rounded-lg px-2 py-1.5 text-sm text-center"
-                            value={editItem.horasDia}
-                            onChange={e => setEditItem({...editItem, horasDia: parseFloat(e.target.value) || 0})}
-                          />
-                        </td>
-                        <td className="px-6 py-4">
-                          <input 
-                            type="number" 
-                            className="w-20 mx-auto bg-white/10 border border-white/20 rounded-lg px-2 py-1.5 text-sm text-center"
-                            value={editItem.diasMes}
-                            onChange={e => setEditItem({...editItem, diasMes: parseInt(e.target.value) || 0})}
-                          />
-                        </td>
-                        <td className="px-6 py-4 text-center font-bold text-indigo-400 text-sm">
-                          {calculateKwh(editItem).toFixed(2)}
-                        </td>
-                        <td className="px-6 py-4 text-right">
-                          <div className="flex justify-end gap-2">
-                            <button onClick={saveEdit} className="p-2 text-emerald-500 hover:bg-emerald-500/10 rounded-lg"><Check size={16} /></button>
-                            <button onClick={cancelEdit} className="p-2 text-rose-500 hover:bg-rose-500/10 rounded-lg"><X size={16} /></button>
-                          </div>
-                        </td>
-                      </>
-                    ) : (
-                      <>
-                        <td className="px-6 py-4 text-sm font-medium">{item.descricao}</td>
-                        <td className="px-6 py-4 text-center text-sm">{item.quantidade}</td>
-                        <td className="px-6 py-4 text-center text-sm">{item.potenciaWatts.toString()}</td>
-                        <td className="px-6 py-4 text-center text-sm">{item.horasDia.toString()}</td>
-                        <td className="px-6 py-4 text-center text-sm">{item.diasMes}</td>
-                        <td className="px-6 py-4 text-center text-sm font-bold text-indigo-400">
-                          {Number(item.consumoMensalKwh).toFixed(2)}
-                        </td>
-                        <td className="px-6 py-4 text-right">
-                          <div className="flex justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                            <button onClick={() => startEdit(item)} className="p-2 text-muted-foreground hover:text-white hover:bg-white/5 rounded-lg transition-all"><Edit2 size={16} /></button>
-                            <button onClick={() => onDelete(item.id)} className="p-2 text-muted-foreground hover:text-rose-500 hover:bg-rose-500/10 rounded-lg transition-all"><Trash2 size={16} /></button>
-                          </div>
-                        </td>
-                      </>
-                    )}
-                  </tr>
-                ))
               )}
             </tbody>
-            {equipamentos.length > 0 && !editingId && (
+            {equipamentos.length > 0 && (
               <tfoot>
                 <tr className="bg-white/5 border-t border-white/10 font-bold">
                   <td colSpan={5} className="px-6 py-5 text-right text-muted-foreground uppercase text-[10px] tracking-widest">Consumo Total Estimado:</td>

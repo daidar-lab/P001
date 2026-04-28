@@ -34,6 +34,7 @@ if (!fs.existsSync(outputDir)) fs.mkdirSync(outputDir, { recursive: true });
 // ─── Rotas da API ───
 app.use('/api/clientes', clientesRoutes);
 app.use('/api/relatorios', relatoriosRoutes);
+app.use('/api/equipamentos', equipamentosRoutes);
 
 // ─── Health Check ───
 app.get('/api/health', (_req, res) => {
