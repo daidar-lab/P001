@@ -44,11 +44,37 @@ export default function ArquivosImportPage() {
     setLoading(false);
   };
 
-  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
+  const [validationErrors, setValidationErrors] = useState<any[]>([]);
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement> | React.DragEvent<HTMLDivElement>) => {
+    // Previne comportamento padrão do navegador (como baixar o arquivo)
+    if (e.type === 'drop' || e.type === 'dragover') {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+
+    if (e.type === 'dragover') return;
+
+    let file: File | undefined;
+    
+    if ('files' in e.target && e.target.files) {
+      // Evento de input
+      file = e.target.files[0];
+    } else if ('dataTransfer' in e && e.dataTransfer.files) {
+      // Evento de drop
+      file = e.dataTransfer.files[0];
+    }
+
     if (!file || !token) return;
 
+    // Validar se é CSV
+    if (!file.name.endsWith('.csv') && file.type !== 'text/csv') {
+      alert("Por favor, selecione apenas arquivos CSV.");
+      return;
+    }
+
     setImportStatus("uploading");
+    setValidationErrors([]);
 
     const formData = new FormData();
     formData.append("arquivo", file);
@@ -67,13 +93,21 @@ export default function ArquivosImportPage() {
         fetchRelatorios();
         setTimeout(() => setImportStatus("idle"), 3000);
       } else {
-        throw new Error(result.message || "Erro no upload");
+        if (result.validation?.errors) {
+          setValidationErrors(result.validation.errors);
+        }
+        throw new Error(result.error || result.message || "Erro no upload");
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
       setImportStatus("idle");
-      alert("Erro ao enviar arquivo CSV. Verifique se o formato está correto.");
+      // O erro detalhado será mostrado via validationErrors no render
     }
+  };
+
+  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
   };
 
   return (
@@ -111,10 +145,14 @@ export default function ArquivosImportPage() {
                 <h2 className="font-bold text-slate-900">Novo Upload</h2>
               </div>
 
-              <div className={cn(
-                "relative border-2 border-dashed rounded-[24px] p-8 flex flex-col items-center text-center transition-all",
-                importStatus === "uploading" ? "border-primary bg-primary/5" : "border-slate-100 hover:border-primary/30"
-              )}>
+              <div 
+                onDragOver={handleDragOver}
+                onDrop={handleFileUpload}
+                className={cn(
+                  "relative border-2 border-dashed rounded-[24px] p-8 flex flex-col items-center text-center transition-all",
+                  importStatus === "uploading" ? "border-primary bg-primary/5" : "border-slate-100 hover:border-primary/30"
+                )}
+              >
                 {importStatus === "idle" ? (
                   <>
                     <div className="w-16 h-16 bg-slate-50 rounded-2xl flex items-center justify-center mb-4 text-slate-300 group-hover:text-primary transition-all">
@@ -124,7 +162,8 @@ export default function ArquivosImportPage() {
                     <p className="text-[11px] text-slate-400 mb-6 font-medium">Arquivos CSV de até 10MB</p>
                     
                     <input 
-                      type="file" id="csv-upload" className="hidden" accept=".csv"
+                      type="file" id="csv-upload" className="hidden" 
+                      accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel"
                       onChange={handleFileUpload}
                     />
                     <label 
@@ -146,6 +185,31 @@ export default function ArquivosImportPage() {
                   </div>
                 )}
               </div>
+
+              {validationErrors.length > 0 && (
+                <div className="mt-6 p-4 bg-red-50 rounded-2xl border border-red-100 animate-in fade-in slide-in-from-top-4">
+                  <div className="flex items-center gap-2 mb-2 text-red-600">
+                    <AlertCircle size={16} />
+                    <span className="text-xs font-black uppercase tracking-widest">Erros de Validação</span>
+                  </div>
+                  <ul className="space-y-1">
+                    {validationErrors.slice(0, 5).map((err, i) => (
+                      <li key={i} className="text-[10px] text-red-500 font-medium list-disc list-inside">
+                        {err.message}
+                      </li>
+                    ))}
+                    {validationErrors.length > 5 && (
+                      <li className="text-[10px] text-red-400 italic">...e mais {validationErrors.length - 5} erros.</li>
+                    )}
+                  </ul>
+                  <button 
+                    onClick={() => setValidationErrors([])}
+                    className="mt-3 text-[10px] font-black text-red-600 uppercase hover:underline"
+                  >
+                    Limpar Avisos
+                  </button>
+                </div>
+              )}
 
               <div className="mt-8 p-4 bg-amber-50 rounded-2xl border border-amber-100 flex gap-3">
                 <AlertCircle size={18} className="text-amber-500 shrink-0" />

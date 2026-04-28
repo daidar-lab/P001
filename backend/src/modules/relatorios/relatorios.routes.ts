@@ -21,10 +21,16 @@ const upload = multer({
     fileSize: (parseInt(process.env.MAX_FILE_SIZE_MB || '10') || 10) * 1024 * 1024,
   },
   fileFilter: (_req, file, cb) => {
-    if (file.mimetype === 'text/csv' || file.originalname.endsWith('.csv')) {
+    const isCsv = file.mimetype === 'text/csv' || file.originalname.endsWith('.csv');
+    const isExcel = file.mimetype === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' || 
+                    file.mimetype === 'application/vnd.ms-excel' ||
+                    file.originalname.endsWith('.xlsx') || 
+                    file.originalname.endsWith('.xls');
+
+    if (isCsv || isExcel) {
       cb(null, true);
     } else {
-      cb(new Error('Apenas arquivos CSV são permitidos'));
+      cb(new Error('Apenas arquivos CSV ou Excel são permitidos'));
     }
   },
 });

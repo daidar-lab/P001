@@ -1,7 +1,7 @@
 // Pipeline Etapa 2 — Validação
 // Validação estrutural e de tipos do CSV
 import prisma from '../../config/database';
-import { parseCsvFile } from '../../modules/faturas/csv-parser';
+import { parseAnyFile } from '../../modules/faturas/csv-parser';
 import { validateCsvStructure, ValidationResult } from '../../modules/faturas/csv-validator';
 
 export interface ValidateResult {
@@ -41,8 +41,8 @@ export async function step2Validate(
   });
 
   try {
-    // 1. Parse do CSV
-    const { headers, rows, rawRowCount } = await parseCsvFile(csvFilePath);
+    // 1. Parse do arquivo (CSV ou XLSX)
+    const { headers, rows, rawRowCount } = await parseAnyFile(csvFilePath);
 
     // 2. Atualizar quantidade de linhas no arquivo CSV
     const relatorio = await prisma.relatorio.findUnique({

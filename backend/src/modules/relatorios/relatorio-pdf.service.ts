@@ -27,7 +27,7 @@ export async function gerarRelatorioPdf(options: GerarPdfOptions): Promise<strin
   if (!relatorio) throw new Error('Relatório não encontrado');
 
   // Buscar equipamentos do cliente (Inventário)
-  const equipamentos = await prisma.equipamento.findMany({
+  const equipamentos = await prisma.inventarioEquipamento.findMany({
     where: { clienteId: relatorio.clienteId || undefined },
   });
 
@@ -41,14 +41,18 @@ export async function gerarRelatorioPdf(options: GerarPdfOptions): Promise<strin
     valor: f.valorTotal?.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }) || 'R$ 0,00',
   }));
 
-  const valorTotalFaturas = relatorio.faturas.reduce((acc, f) => acc + (f.valorTotal || 0), 0);
-  const consumoTotalFaturas = relatorio.faturas.reduce((acc, f) => acc + (f.consumoKwh || 0), 0);
+  const valorTotalFaturas = relatorio.faturas.reduce((acc, f) => acc + Number(f.valorTotal || 0), 0);
+  const consumoTotalFaturas = relatorio.faturas.reduce((acc, f) => acc + Number(f.consumoKwh || 0), 0);
   const tarifaMedia = consumoTotalFaturas > 0 ? valorTotalFaturas / consumoTotalFaturas : 0;
 
   const listaEquipamentos = equipamentos.map(e => {
-    const consumoMensal = ((e.potenciaWatts || 0) * (e.horasDia || 0) * (e.diasMes || 30)) / 1000;
+    const consumoMensal = (Number(e.potenciaWatts || 0) * Number(e.horasDia || 0) * (e.diasMes || 30)) / 1000;
     return {
       ...e,
+      descricao: e.descricao || 'Equipamento',
+      quantidade: e.quantidade || 1,
+      potenciaWatts: Number(e.potenciaWatts || 0),
+      horasDia: Number(e.horasDia || 0),
       consumoMensalKwh: consumoMensal.toFixed(2),
     };
   });
@@ -57,9 +61,13 @@ export async function gerarRelatorioPdf(options: GerarPdfOptions): Promise<strin
   const divergencia = consumoTotalFaturas > 0 ? ((consumoEstimadoTotal - consumoTotalFaturas) / consumoTotalFaturas) * 100 : 0;
 
   // 3. Gerar Resumo IA via Ollama
+  const clientInfo = relatorio.cliente 
+    ? `do cliente ${relatorio.cliente.nome} (CNPJ: ${relatorio.cliente.cnpj})` 
+    : `do cliente identificado como "${relatorio.faturas[0]?.clienteNome || 'Desconhecido'}" no CSV`;
+
   const prompt = `
     Aja como um consultor sênior em eficiência energética. 
-    Analise os seguintes dados de uma fatura de energia e do inventário de equipamentos do cliente ${relatorio.cliente?.nome || 'Cliente'}.
+    Analise os seguintes dados de uma fatura de energia e do inventário de equipamentos ${clientInfo}.
     
     DADOS DA FATURA:
     - Consumo Real: ${consumoTotalFaturas} kWh
@@ -93,14 +101,34 @@ export async function gerarRelatorioPdf(options: GerarPdfOptions): Promise<strin
     console.error('[OLLAMA] Erro ao gerar conclusão:', error);
   }
 
+  // Carregar Logo Audit Energy em Base64
+  let auditLogoBase64 = '';
+  try {
+    const logoPath = path.join(__dirname, '../../public/images/logo-audit.png');
+    if (fs.existsSync(logoPath)) {
+      const logoBuffer = fs.readFileSync(logoPath);
+      auditLogoBase64 = `data:image/png;base64,${logoBuffer.toString('base64')}`;
+    }
+  } catch (err) {
+    console.error('Erro ao carregar logo para o PDF:', err);
+  }
+
+  // Dados para o gráfico (últimos meses ordenados)
+  const consumoHistorico = relatorio.faturas
+    .filter(f => f.periodoReferencia)
+    .sort((a, b) => new Date(a.periodoReferencia!).getTime() - new Date(b.periodoReferencia!).getTime())
+    .map(f => ({
+      mes: new Date(f.periodoReferencia!).toLocaleDateString('pt-BR', { month: 'short' }).toUpperCase(),
+      consumo: Number(f.consumoKwh || 0)
+    }));
+
   // 4. Renderizar Template
   const templatePath = path.join(__dirname, '../../templates/relatorios/fatura-analise.html');
   const templateHtml = fs.readFileSync(templatePath, 'utf8');
   const template = handlebars.compile(templateHtml);
 
   const htmlFinal = template({
-    clienteLogo: 'https://auditenergy.com.br/placeholder-logo.png', // Placeholder ou do cliente
-    coverImage: 'https://images.unsplash.com/photo-1509391366360-fe5bb58583bb?q=80&w=2070&auto=format&fit=crop',
+    auditLogo: auditLogoBase64,
     periodoReferencia: relatorio.periodoReferencia ? new Date(relatorio.periodoReferencia).toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' }).toUpperCase() : 'N/A',
     responsavel,
     clienteNome: relatorio.cliente?.nome || 'N/A',
@@ -114,13 +142,15 @@ export async function gerarRelatorioPdf(options: GerarPdfOptions): Promise<strin
     faturasItem: faturasProcessadas,
     valorTotal: valorTotalFaturas.toLocaleString('pt-BR'),
     tarifaUnitaria: tarifaMedia.toFixed(4),
-    percentualTributos: "22,30", // Placeholder ou calculado
+    percentualTributos: "22,30", 
     equipamentos: listaEquipamentos,
     consumoEstimadoTotal: consumoEstimadoTotal.toFixed(2),
     consumoRealTotal: consumoTotalFaturas.toLocaleString('pt-BR'),
     percentualDivergencia: Math.abs(divergencia).toFixed(2),
     divergenciaCor: Math.abs(divergencia) > 15 ? '#ef4444' : '#10b981',
-    conclusaoIa: conclusaoIa
+    conclusaoIa: conclusaoIa,
+    chartLabels: JSON.stringify(consumoHistorico.map(h => h.mes)),
+    chartValues: JSON.stringify(consumoHistorico.map(h => h.consumo))
   });
 
   // 5. Gerar PDF com Puppeteer
@@ -151,9 +181,23 @@ export async function gerarRelatorioPdf(options: GerarPdfOptions): Promise<strin
     where: { id: relatorioId },
     data: { 
       status: 'processado',
-      // Aqui poderíamos ter um campo arquivoPdfId futuramente
     },
   });
+
+  // 7. Envio Automático de E-mail (Opcional se houver e-mail do cliente)
+  if (relatorio.cliente?.emailFinanceiro) {
+    const { enviarRelatorioPorEmail } = await import('../../services/email.service');
+    const mesRef = relatorio.periodoReferencia 
+      ? new Date(relatorio.periodoReferencia).toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })
+      : 'Período Atual';
+
+    await enviarRelatorioPorEmail({
+      to: relatorio.cliente.emailFinanceiro,
+      clienteNome: relatorio.cliente.nome,
+      periodoReferencia: mesRef,
+      pdfPath: pdfPath
+    });
+  }
 
   return pdfPath;
 }

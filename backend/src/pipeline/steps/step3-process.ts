@@ -1,7 +1,7 @@
 // Pipeline Etapa 3 — Processamento
 // Parse de dados, inserção em faturas, cálculos derivados e rastreabilidade
 import prisma from '../../config/database';
-import { parseCsvFile } from '../../modules/faturas/csv-parser';
+import { parseAnyFile } from '../../modules/faturas/csv-parser';
 import { parseDate, parseNumber } from '../../utils/date-utils';
 import { sanitizeScientificNotation } from '../../utils/string-utils';
 import { getMappedValue } from '../../modules/faturas/csv-validator';
@@ -46,7 +46,7 @@ export async function step3Process(
   });
 
   try {
-    const { rows } = await parseCsvFile(csvFilePath);
+    const { rows } = await parseAnyFile(csvFilePath);
 
     let faturasInseridas = 0;
     let camposRastreados = 0;
@@ -102,12 +102,34 @@ export async function step3Process(
             ? calcularDiferencaPercentual(consumoKwh, consumoKwhMesAnterior)
             : null;
 
-        // Atualizar período de referência no relatório (do primeiro registro)
-        if (i === 0 && periodoReferencia) {
-          await tx.relatorio.update({
-            where: { id: relatorioId },
-            data: { periodoReferencia },
+        // ─── ASSOCIAÇÃO AUTOMÁTICA DE CLIENTE (Novo) ───
+        if (i === 0 && clienteNome) {
+          // Busca cliente por nome (ignora case e acentos se possível, ou busca exata simples aqui)
+          const cliente = await tx.cliente.findFirst({
+            where: {
+              nome: {
+                contains: clienteNome,
+                mode: 'insensitive'
+              }
+            }
           });
+
+          if (cliente) {
+            console.log(`[PIPELINE] Cliente identificado: ${cliente.nome} (${cliente.id})`);
+            await tx.relatorio.update({
+              where: { id: relatorioId },
+              data: { 
+                clienteId: cliente.id,
+                periodoReferencia // já estava planejado
+              },
+            });
+          } else {
+            console.warn(`[PIPELINE] Cliente "${clienteNome}" não encontrado no cadastro.`);
+            await tx.relatorio.update({
+              where: { id: relatorioId },
+              data: { periodoReferencia },
+            });
+          }
         }
 
         // Inserir fatura
@@ -123,14 +145,14 @@ export async function step3Process(
             periodoMedicaoFim,
             classeTarifaria,
             dataEmissao,
-            valorTotal,
-            consumoKwh,
-            tarifaUnitaria,
-            valorCip,
+            valorTotal: valorTotal || 0,
+            consumoKwh: consumoKwh || 0,
+            tarifaUnitaria: tarifaUnitaria || 0,
+            valorCip: valorCip || 0,
             bandeiraTarifaria,
-            consumoKwhMesAnterior,
-            consumoKwhMedia: mediaConsumo,
-            diferencaPercentual,
+            consumoKwhMesAnterior: consumoKwhMesAnterior || 0,
+            consumoKwhMedia: mediaConsumo || 0,
+            diferencaPercentual: diferencaPercentual || 0,
             metadadosOrigem: row as any,
           },
         });

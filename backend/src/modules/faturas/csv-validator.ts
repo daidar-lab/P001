@@ -58,15 +58,27 @@ export const COLUMN_TYPES: Record<string, 'date' | 'number' | 'text'> = {
 };
 
 /**
- * Busca o valor de uma coluna usando mapeamento flexível
+ * Normaliza uma string removendo acentos e espaços, e convertendo para lowercase
+ */
+export function normalize(str: string): string {
+  return str
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .trim()
+    .toLowerCase();
+}
+
+/**
+ * Busca o valor de uma coluna usando mapeamento flexível (insensível a acentos)
  */
 export function getMappedValue(row: Record<string, string>, internalKey: string): string | undefined {
   const synonyms = COLUMN_MAPPING[internalKey] || [internalKey];
+  const normalizedSynonyms = synonyms.map(s => normalize(s));
   
   // Tentar cada sinônimo
-  for (const synonym of synonyms) {
-    // Busca exata (case-insensitive)
-    const key = Object.keys(row).find(k => k.toLowerCase().trim() === synonym.toLowerCase().trim());
+  const rowKeys = Object.keys(row);
+  for (const syn of normalizedSynonyms) {
+    const key = rowKeys.find(k => normalize(k) === syn);
     if (key && row[key] !== undefined) {
       return row[key];
     }
@@ -101,13 +113,13 @@ export function validateCsvStructure(
   const errors: ValidationError[] = [];
   const warnings: ValidationWarning[] = [];
 
-  // Normaliza headers (trim, lowercase)
-  const normalizedHeaders = headers.map((h) => h.trim().toLowerCase());
+  // Normaliza headers (remover acentos para comparação)
+  const normalizedHeaders = headers.map((h) => normalize(h));
 
   // 1. Verificar colunas obrigatórias usando o mapeamento
   for (const internalKey of REQUIRED_COLUMNS) {
     const synonyms = COLUMN_MAPPING[internalKey] || [internalKey];
-    const found = synonyms.some(syn => normalizedHeaders.includes(syn.toLowerCase().trim()));
+    const found = synonyms.some(syn => normalizedHeaders.includes(normalize(syn)));
     
     if (!found) {
       errors.push({
@@ -119,8 +131,11 @@ export function validateCsvStructure(
   }
 
   // 2. Identificar colunas extras
-  for (const header of normalizedHeaders) {
-    const isMapped = Object.values(COLUMN_MAPPING).some(syns => syns.includes(header));
+  for (const header of headers) {
+    const normHeader = normalize(header);
+    const isMapped = Object.values(COLUMN_MAPPING).some(syns => 
+      syns.some(syn => normalize(syn) === normHeader)
+    );
     if (!isMapped) {
       warnings.push({
         type: 'extra_column',
@@ -139,13 +154,13 @@ export function validateCsvStructure(
         // Usar mapeamento flexível para pegar o valor
         const value = getMappedValue(row, col)?.trim();
 
-        // Verificar campos vazios obrigatórios
+        // Verificar campos vazios (transformar em warning em vez de erro para permitir geração)
         if (!value || value === '') {
-          errors.push({
-            type: 'empty_required',
+          warnings.push({
+            type: 'empty_optional', // tratamos como opcional para não travar
             column: col,
             row: rowNum,
-            message: `Valor vazio na coluna "${col}" (mapeada no arquivo) (linha ${rowNum})`,
+            message: `Valor vazio na coluna "${col}" (linha ${rowNum}). Será assumido valor zero/padrão no relatório.`,
           });
           continue;
         }

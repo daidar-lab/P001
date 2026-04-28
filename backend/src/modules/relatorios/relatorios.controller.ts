@@ -112,10 +112,15 @@ export async function downloadPdf(req: Request, res: Response, next: NextFunctio
     const path = await import('path');
     const pdfPath = path.join(__dirname, `../../../uploads/pdfs/relatorio-${relatorio.codigoRelatorio}.pdf`);
 
+    console.log(`[DOWNLOAD] Tentando baixar: ${pdfPath}`);
+    console.log(`[DOWNLOAD] Existe? ${fs.existsSync(pdfPath)}`);
+
     if (!fs.existsSync(pdfPath)) {
       throw createError('Arquivo PDF não encontrado. Tente gerar novamente.', 404, 'PDF_NOT_FOUND');
     }
 
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `attachment; filename="Relatorio-Audit-${relatorio.codigoRelatorio}.pdf"`);
     res.download(pdfPath, `Relatorio-Audit-${relatorio.codigoRelatorio}.pdf`);
   } catch (error) {
     next(error);

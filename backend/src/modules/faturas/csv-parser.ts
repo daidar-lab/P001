@@ -48,6 +48,7 @@ export async function parseCsvBuffer(buffer: Buffer): Promise<CsvParseResult> {
           delimiter,
           columns: (rawHeaders: string[]) => {
             headers = rawHeaders.map((h: string) => h.trim().toLowerCase());
+            console.log(`[CSV-PARSER] Headers detectados:`, headers);
             return headers;
           },
           skip_empty_lines: true,
@@ -73,10 +74,39 @@ export async function parseCsvBuffer(buffer: Buffer): Promise<CsvParseResult> {
 }
 
 /**
- * Faz o parse de um arquivo CSV a partir do caminho
+ * Faz o parse de um arquivo Excel (.xlsx ou .xls)
  */
-export async function parseCsvFile(filePath: string): Promise<CsvParseResult> {
-  const fs = await import('fs');
-  const buffer = fs.readFileSync(filePath);
-  return parseCsvBuffer(buffer);
+export async function parseXlsxFile(filePath: string): Promise<CsvParseResult> {
+  const xlsx = await import('xlsx');
+  const workbook = xlsx.readFile(filePath);
+  const sheetName = workbook.SheetNames[0];
+  const worksheet = workbook.Sheets[sheetName];
+  
+  // Converter para JSON (array de objetos)
+  const rows = xlsx.utils.sheet_to_json(worksheet, { defval: "" }) as any[];
+  
+  // Extrair headers da primeira linha do worksheet se disponível, 
+  // ou das chaves do primeiro objeto
+  const headers = rows.length > 0 ? Object.keys(rows[0]) : [];
+  console.log(`[XLSX-PARSER] Headers detectados:`, headers);
+
+  return {
+    headers,
+    rows: rows as ParsedCsvRow[],
+    rawRowCount: rows.length,
+  };
+}
+
+/**
+ * Faz o parse de qualquer arquivo suportado (CSV ou Excel)
+ */
+export async function parseAnyFile(filePath: string): Promise<CsvParseResult> {
+  const path = await import('path');
+  const ext = path.extname(filePath).toLowerCase();
+
+  if (ext === '.xlsx' || ext === '.xls') {
+    return parseXlsxFile(filePath);
+  }
+
+  return parseCsvFile(filePath);
 }

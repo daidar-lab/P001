@@ -24,235 +24,140 @@
 
         .page {
             width: 210mm;
-            height: 296mm;
+            min-height: 296mm;
             padding: 20mm;
             box-sizing: border-box;
             position: relative;
             page-break-after: always;
-            overflow: hidden;
         }
 
-        /* Capa */
+        /* Capa Reestilizada */
         .cover {
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: space-between;
+            justify-content: center;
             text-align: center;
-            height: 100%;
-        }
-
-        .client-logo {
-            max-width: 300px;
-            max-height: 150px;
-            margin-top: 50px;
+            height: 250mm;
         }
 
         .report-title {
-            margin-top: 100px;
+            margin-bottom: 50px;
         }
 
         .report-title h1 {
-            font-size: 36px;
-            font-weight: 800;
+            font-size: 32px;
+            font-weight: 900;
             color: var(--slate-900);
             margin-bottom: 10px;
+            text-transform: uppercase;
         }
 
         .report-title h2 {
-            font-size: 20px;
+            font-size: 18px;
             font-weight: 400;
             color: var(--primary);
-            letter-spacing: 2px;
+            letter-spacing: 3px;
         }
 
-        .cover-image {
+        .brand-card {
             width: 100%;
-            height: 350px;
-            object-fit: cover;
+            height: 400px;
+            background: linear-gradient(135deg, var(--slate-900) 0%, #1e293b 100%);
             border-radius: 40px;
-            margin: 50px 0;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            margin: 40px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        }
+
+        .audit-logo-large {
+            width: 350px;
+            filter: brightness(0) invert(1); /* Torna o logo branco se for escuro */
         }
 
         .cover-footer {
+            margin-top: 50px;
             width: 100%;
             display: flex;
             justify-content: space-between;
             align-items: flex-end;
-            border-top: 1px solid var(--slate-100);
+            border-top: 2px solid var(--slate-100);
             padding-top: 30px;
         }
 
-        .meta-info {
-            text-align: left;
-        }
-
-        .meta-info span {
-            display: block;
-            font-size: 10px;
-            font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: 1.5px;
-            color: var(--slate-400);
-        }
-
-        .meta-info p {
-            font-size: 16px;
-            font-weight: 700;
-            margin: 5px 0 0 0;
-        }
-
-        .energymax-logo {
-            width: 100px;
-        }
-
-        /* Conteúdo Geral */
-        h3 {
-            font-size: 24px;
-            font-weight: 800;
-            margin-bottom: 20px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        h3::before {
-            content: '';
-            width: 15px;
-            height: 15px;
-            background: var(--primary);
-            border-radius: 4px;
-        }
-
-        .section-box {
-            background: var(--slate-100);
-            border-radius: 24px;
-            padding: 30px;
-            margin-bottom: 30px;
-        }
-
-        .grid-info {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 20px;
-        }
-
-        .info-item label {
-            font-size: 10px;
-            font-weight: 900;
-            text-transform: uppercase;
-            color: var(--slate-400);
-            display: block;
-            margin-bottom: 5px;
-        }
-
-        .info-item span {
-            font-size: 14px;
-            font-weight: 700;
-        }
-
-        /* Tabelas */
+        /* Tabelas e Quebras */
         table {
             width: 100%;
             border-collapse: separate;
             border-spacing: 0;
             margin: 20px 0;
+            page-break-inside: auto;
         }
 
-        th {
-            background: var(--slate-900);
-            color: white;
-            padding: 15px;
-            font-size: 10px;
-            font-weight: 900;
-            text-transform: uppercase;
-            text-align: left;
+        tr {
+            page-break-inside: avoid;
+            page-break-after: auto;
         }
 
-        th:first-child { border-radius: 12px 0 0 12px; }
-        th:last-child { border-radius: 0 12px 12px 0; }
-
-        td {
-            padding: 15px;
-            font-size: 12px;
-            border-bottom: 1px solid var(--slate-100);
+        thead {
+            display: table-header-group;
         }
 
-        tr.total {
-            font-weight: 800;
-            background: var(--primary);
-            color: white;
-        }
-
-        /* Análise IA */
-        .ia-conclusion {
-            line-height: 1.6;
-            font-size: 14px;
-            color: var(--slate-600);
-            text-align: justify;
-        }
-
-        .ia-conclusion p {
-            margin-bottom: 15px;
-        }
-
-        .highlight-box {
-            border-left: 4px solid var(--primary);
-            padding-left: 20px;
-            margin: 20px 0;
-            font-style: italic;
-        }
-
-        /* Gráfico Placeholder (Renderizado via JS no Puppeteer ou Imagem) */
-        .chart-container {
+        /* Gráfico */
+        .chart-wrapper {
             width: 100%;
-            height: 250px;
+            padding: 20px;
             background: white;
-            border-radius: 20px;
-            margin: 20px 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            border-radius: 24px;
             border: 1px solid var(--slate-100);
+            margin: 20px 0;
+        }
+
+        #consumptionChart {
+            width: 100% !important;
+            height: 300px !important;
         }
 
         .footer-page {
             position: absolute;
-            bottom: 20mm;
+            bottom: 10mm;
             left: 20mm;
             right: 20mm;
             display: flex;
             justify-content: space-between;
-            font-size: 10px;
+            font-size: 9px;
             color: var(--slate-400);
             border-top: 1px solid var(--slate-100);
             padding-top: 10px;
         }
     </style>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
     <!-- PÁGINA 1: CAPA -->
     <div class="page">
         <div class="cover">
-            <img src="{{clienteLogo}}" class="client-logo" alt="Logo Cliente">
-            
             <div class="report-title">
                 <h1>Relatório de Análise de Fatura de Energia</h1>
-                <h2>EFICIÊNCIA ENERGÉTICA E ENERGIA SOLAR</h2>
+                <h2>EFICIÊNCIA ENERGÉTICA</h2>
             </div>
 
-            <img src="{{coverImage}}" class="cover-image" alt="Energia Solar">
+            <div class="brand-card">
+                <!-- Logo da Audit Energy no Card Central -->
+                <img src="{{auditLogo}}" class="audit-logo-large" alt="Audit Energy">
+            </div>
 
             <div class="cover-footer">
                 <div class="meta-info">
-                    <span>Mês de Referência</span>
-                    <p>{{periodoReferencia}}</p>
-                    <br>
-                    <span>Responsável</span>
-                    <p>{{responsavel}}</p>
+                    <span style="font-size: 10px; font-weight: 800; color: var(--slate-400); text-transform: uppercase;">Mês de Referência</span>
+                    <p style="font-size: 18px; font-weight: 700; margin: 5px 0 0 0;">{{periodoReferencia}}</p>
                 </div>
-                <img src="https://auditenergy.com.br/logo.png" class="energymax-logo" alt="EnergyMax">
+                <div class="meta-info" style="text-align: right;">
+                    <span style="font-size: 10px; font-weight: 800; color: var(--slate-400); text-transform: uppercase;">Responsável</span>
+                    <p style="font-size: 18px; font-weight: 700; margin: 5px 0 0 0;">{{responsavel}}</p>
+                </div>
             </div>
         </div>
     </div>
@@ -296,7 +201,7 @@
 
         <div class="footer-page">
             <span>Audit Energy — Relatório Técnico</span>
-            <span>Página 2</span>
+            <span>Documento de Auditoria</span>
         </div>
     </div>
 
@@ -332,20 +237,18 @@
         </table>
 
         <h3>Histórico de Consumo</h3>
-        <div class="chart-container">
-            <!-- Aqui entrará o gráfico gerado ou placeholder -->
-            <p style="color: var(--slate-400); font-size: 12px;">[ Gráfico de Evolução de Consumo ]</p>
+        <div class="chart-wrapper">
+            <canvas id="consumptionChart"></canvas>
         </div>
 
         <div class="highlight-box">
             <p style="margin: 0; font-size: 13px; color: var(--slate-900);">
-                A tarifa unitária total corresponde a <strong>R$ {{tarifaUnitaria}}/kWh</strong> (com tributos). No período analisado, os tributos incidentes totalizaram <strong>{{percentualTributos}}%</strong> do valor total da fatura.
+                A tarifa unitária total corresponde a <strong>R$ {{tarifaUnitaria}}/kWh</strong> (com tributos). No período analisado, os tributos incidentes totalizaram <strong>{{percentualTributos}}%</strong> do valor total da fature.
             </p>
         </div>
 
         <div class="footer-page">
             <span>Audit Energy — Relatório Técnico</span>
-            <span>Página 3</span>
         </div>
     </div>
 
@@ -399,7 +302,6 @@
 
         <div class="footer-page">
             <span>Audit Energy — Relatório Técnico</span>
-            <span>Página 4</span>
         </div>
     </div>
 
@@ -417,8 +319,41 @@
 
         <div class="footer-page">
             <span>Audit Energy — Relatório Técnico</span>
-            <span>Página 5</span>
         </div>
     </div>
+
+    <script>
+        // Inicializar Gráfico
+        const ctx = document.getElementById('consumptionChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: {{{chartLabels}}},
+                datasets: [{
+                    label: 'Consumo (kWh)',
+                    data: {{{chartValues}}},
+                    backgroundColor: '#10b981',
+                    borderRadius: 8,
+                    borderSkipped: false,
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: { color: '#f1f5f9' }
+                    },
+                    x: {
+                        grid: { display: false }
+                    }
+                }
+            }
+        });
+    </script>
 </body>
 </html>
