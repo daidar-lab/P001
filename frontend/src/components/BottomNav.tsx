@@ -17,7 +17,7 @@ const navItems = [
   { icon: FileText, label: "Relatórios", href: "/relatorios" },
   { icon: PieChart, label: "Analytics", href: "/analytics" },
   { icon: FolderOpen, label: "Arquivos", href: "/arquivos" },
-  { icon: Calculator, label: "Ferramentas", href: "/tools" },
+  { icon: Calculator, label: "Ferramentas", href: "/ferramentas" },
 ];
 
 export function BottomNav() {

@@ -88,7 +88,10 @@ export async function buscarRastreabilidade(relatorioId: string) {
 }
 
 export async function obterEstatisticas() {
-  const [totalRelatorios, porStatus, ultimosRelatorios] = await Promise.all([
+  const seteDiasAtras = new Date();
+  seteDiasAtras.setDate(seteDiasAtras.getDate() - 7);
+
+  const [totalRelatorios, porStatus, ultimosRelatorios, enviadosRecentemente] = await Promise.all([
     prisma.relatorio.count(),
     prisma.relatorio.groupBy({
       by: ['status'],
@@ -108,7 +111,26 @@ export async function obterEstatisticas() {
         },
       },
     }),
+    prisma.relatorio.findMany({
+      where: {
+        status: 'enviado',
+        atualizadoEm: { gte: seteDiasAtras }
+      },
+      select: { atualizadoEm: true }
+    })
   ]);
+
+  // Processar dados para o gráfico (agrupar por dia)
+  const diasSemana = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
+  const enviadosPorDia = Array.from({ length: 7 }, (_, i) => {
+    const d = new Date();
+    d.setDate(d.getDate() - i);
+    const label = diasSemana[d.getDay()];
+    const count = enviadosRecentemente.filter(r => 
+      new Date(r.atualizadoEm).toDateString() === d.toDateString()
+    ).length;
+    return { name: label, total: count };
+  }).reverse();
 
   return {
     totalRelatorios,
@@ -120,5 +142,6 @@ export async function obterEstatisticas() {
       {} as Record<string, number>
     ),
     ultimosRelatorios,
+    enviadosPorDia
   };
 }

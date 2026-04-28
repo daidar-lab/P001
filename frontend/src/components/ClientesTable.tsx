@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { Plus, Trash2, Edit2, Check, X, Loader2, Building2, MapPin, User, Mail, Hash } from "lucide-react";
+import { Plus, Trash2, Edit2, Check, X, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface Cliente {
@@ -58,53 +58,69 @@ export function ClientesTable({ clientes, onAdd, onDelete, onUpdate, loading }: 
   };
 
   return (
-    <div className="glass-card rounded-3xl overflow-hidden border border-white/5">
+    <div className="bg-white rounded-3xl overflow-hidden border border-slate-200 shadow-sm">
       <div className="overflow-x-auto">
-        <table className="w-full text-left border-collapse">
+        <table className="w-full text-left border-collapse min-w-[1000px]">
           <thead>
-            <tr className="bg-white/5 text-muted-foreground text-[11px] uppercase tracking-widest border-b border-white/5">
-              <th className="px-6 py-4 font-semibold">Cliente / Razão Social</th>
-              <th className="px-6 py-4 font-semibold">CNPJ</th>
-              <th className="px-6 py-4 font-semibold">Cidade / Endereço</th>
-              <th className="px-6 py-4 font-semibold">Responsável</th>
-              <th className="px-6 py-4 font-semibold text-right">Ações</th>
+            <tr className="bg-slate-50 text-slate-400 text-[10px] font-black uppercase tracking-widest border-b border-slate-200">
+              <th className="px-6 py-5 font-bold">Cliente</th>
+              <th className="px-4 py-5 font-bold">CNPJ</th>
+              <th className="px-4 py-5 font-bold">Cidade</th>
+              <th className="px-4 py-5 font-bold">Endereço</th>
+              <th className="px-4 py-5 font-bold">Responsável</th>
+              <th className="px-4 py-5 font-bold">E-mail Financeiro</th>
+              <th className="px-6 py-5 font-bold text-right">Ações</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-white/5">
+          <tbody className="divide-y divide-slate-100">
             {/* Cadastro Row */}
-            <tr className="bg-primary/5">
-              <td className="px-6 py-4">
+            <tr className="bg-emerald-50/30 group transition-all">
+              <td className="px-4 py-4">
                 <input 
-                  type="text" placeholder="Nome da Empresa"
-                  className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-sm focus:ring-1 focus:ring-primary"
+                  type="text" placeholder="Nome"
+                  className="w-full bg-white border border-slate-200 rounded-xl px-4 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-primary/20"
                   value={newItem.nome} onChange={e => setNewItem({...newItem, nome: e.target.value})}
                 />
               </td>
-              <td className="px-6 py-4">
+              <td className="px-4 py-4">
                 <input 
-                  type="text" placeholder="00.000.000/0000-00"
-                  className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-sm focus:ring-1 focus:ring-primary"
+                  type="text" placeholder="CNPJ"
+                  className="w-full bg-white border border-slate-200 rounded-xl px-4 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-primary/20"
                   value={newItem.cnpj} onChange={e => setNewItem({...newItem, cnpj: e.target.value})}
                 />
               </td>
-              <td className="px-6 py-4">
+              <td className="px-4 py-4">
                 <input 
-                  type="text" placeholder="Cidade, UF - Endereço"
-                  className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-sm focus:ring-1 focus:ring-primary"
+                  type="text" placeholder="Cidade"
+                  className="w-full bg-white border border-slate-200 rounded-xl px-4 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-primary/20"
                   value={newItem.cidade} onChange={e => setNewItem({...newItem, cidade: e.target.value})}
                 />
               </td>
-              <td className="px-6 py-4">
+              <td className="px-4 py-4">
+                <input 
+                  type="text" placeholder="Endereço"
+                  className="w-full bg-white border border-slate-200 rounded-xl px-4 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-primary/20"
+                  value={newItem.endereco} onChange={e => setNewItem({...newItem, endereco: e.target.value})}
+                />
+              </td>
+              <td className="px-4 py-4">
                 <input 
                   type="text" placeholder="Responsável"
-                  className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-sm focus:ring-1 focus:ring-primary"
+                  className="w-full bg-white border border-slate-200 rounded-xl px-4 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-primary/20"
                   value={newItem.responsavel} onChange={e => setNewItem({...newItem, responsavel: e.target.value})}
+                />
+              </td>
+              <td className="px-4 py-4">
+                <input 
+                  type="email" placeholder="E-mail"
+                  className="w-full bg-white border border-slate-200 rounded-xl px-4 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-primary/20"
+                  value={newItem.emailFinanceiro || ""} onChange={e => setNewItem({...newItem, emailFinanceiro: e.target.value})}
                 />
               </td>
               <td className="px-6 py-4 text-right">
                 <button 
                   onClick={handleAdd} disabled={isAdding || !newItem.nome}
-                  className="p-3 bg-primary text-white rounded-xl hover:bg-primary/90 transition-all disabled:opacity-50"
+                  className="p-3 bg-primary text-white rounded-xl hover:bg-emerald-600 transition-all shadow-lg shadow-primary/20 disabled:opacity-50"
                 >
                   {isAdding ? <Loader2 size={18} className="animate-spin" /> : <Plus size={18} />}
                 </button>
@@ -112,46 +128,49 @@ export function ClientesTable({ clientes, onAdd, onDelete, onUpdate, loading }: 
             </tr>
 
             {/* Listagem */}
-            {loading && clientes.length === 0 ? (
-              <tr><td colSpan={5} className="px-6 py-12 text-center text-muted-foreground animate-pulse">Carregando clientes...</td></tr>
-            ) : clientes.map((cliente) => (
-              <tr key={cliente.id} className={cn("hover:bg-white/[0.02] transition-colors group", editingId === cliente.id && "bg-white/5")}>
+            {clientes.map((cliente) => (
+              <tr key={cliente.id} className={cn("hover:bg-slate-50 transition-colors group", editingId === cliente.id && "bg-slate-50")}>
                 {editingId === cliente.id ? (
                   <>
-                    <td className="px-6 py-4"><input className="w-full bg-white/10 border border-white/20 rounded-lg px-3 py-1.5 text-sm" value={editItem.nome} onChange={e => setEditItem({...editItem, nome: e.target.value})} /></td>
-                    <td className="px-6 py-4"><input className="w-full bg-white/10 border border-white/20 rounded-lg px-3 py-1.5 text-sm" value={editItem.cnpj} onChange={e => setEditItem({...editItem, cnpj: e.target.value})} /></td>
-                    <td className="px-6 py-4"><input className="w-full bg-white/10 border border-white/20 rounded-lg px-3 py-1.5 text-sm" value={editItem.cidade} onChange={e => setEditItem({...editItem, cidade: e.target.value})} /></td>
-                    <td className="px-6 py-4"><input className="w-full bg-white/10 border border-white/20 rounded-lg px-3 py-1.5 text-sm" value={editItem.responsavel} onChange={e => setEditItem({...editItem, responsavel: e.target.value})} /></td>
+                    <td className="px-4 py-4"><input className="w-full bg-white border border-slate-200 rounded-lg px-2 py-1.5 text-xs text-slate-900" value={editItem.nome || ""} onChange={e => setEditItem({...editItem, nome: e.target.value})} /></td>
+                    <td className="px-4 py-4"><input className="w-full bg-white border border-slate-200 rounded-lg px-2 py-1.5 text-xs text-slate-900" value={editItem.cnpj || ""} onChange={e => setEditItem({...editItem, cnpj: e.target.value})} /></td>
+                    <td className="px-4 py-4"><input className="w-full bg-white border border-slate-200 rounded-lg px-2 py-1.5 text-xs text-slate-900" value={editItem.cidade || ""} onChange={e => setEditItem({...editItem, cidade: e.target.value})} /></td>
+                    <td className="px-4 py-4"><input className="w-full bg-white border border-slate-200 rounded-lg px-2 py-1.5 text-xs text-slate-900" value={editItem.endereco || ""} onChange={e => setEditItem({...editItem, endereco: e.target.value})} /></td>
+                    <td className="px-4 py-4"><input className="w-full bg-white border border-slate-200 rounded-lg px-2 py-1.5 text-xs text-slate-900" value={editItem.responsavel || ""} onChange={e => setEditItem({...editItem, responsavel: e.target.value})} /></td>
+                    <td className="px-4 py-4"><input className="w-full bg-white border border-slate-200 rounded-lg px-2 py-1.5 text-xs text-slate-900" value={editItem.emailFinanceiro || ""} onChange={e => setEditItem({...editItem, emailFinanceiro: e.target.value})} /></td>
                     <td className="px-6 py-4 text-right">
                       <div className="flex justify-end gap-2">
-                        <button onClick={saveEdit} className="p-2 text-emerald-500 hover:bg-emerald-500/10 rounded-lg"><Check size={16} /></button>
-                        <button onClick={() => setEditingId(null)} className="p-2 text-rose-500 hover:bg-rose-500/10 rounded-lg"><X size={16} /></button>
+                        <button onClick={saveEdit} className="p-2 bg-emerald-500 text-white hover:bg-emerald-600 rounded-lg transition-all"><Check size={14} /></button>
+                        <button onClick={() => setEditingId(null)} className="p-2 bg-slate-200 text-slate-600 hover:bg-slate-300 rounded-lg transition-all"><X size={14} /></button>
                       </div>
                     </td>
                   </>
                 ) : (
                   <>
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary font-bold text-xs">
-                          {cliente.nome.charAt(0)}
-                        </div>
-                        <span className="text-sm font-medium">{cliente.nome}</span>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 text-sm text-muted-foreground font-mono">{cliente.cnpj}</td>
-                    <td className="px-6 py-4 text-sm text-muted-foreground">{cliente.cidade || "Não informado"}</td>
-                    <td className="px-6 py-4 text-sm text-muted-foreground">{cliente.responsavel || "Não informado"}</td>
+                    <td className="px-4 py-4 text-xs font-bold text-slate-900">{cliente.nome}</td>
+                    <td className="px-4 py-4 text-xs text-slate-500 font-mono font-medium">{cliente.cnpj}</td>
+                    <td className="px-4 py-4 text-xs text-slate-500 font-medium">{cliente.cidade || "-"}</td>
+                    <td className="px-4 py-4 text-xs text-slate-500 font-medium truncate max-w-[150px]" title={cliente.endereco}>{cliente.endereco || "-"}</td>
+                    <td className="px-4 py-4 text-xs text-slate-500 font-medium">{cliente.responsavel || "-"}</td>
+                    <td className="px-4 py-4 text-xs text-slate-500 font-medium truncate max-w-[150px]" title={cliente.emailFinanceiro}>{cliente.emailFinanceiro || "-"}</td>
                     <td className="px-6 py-4 text-right">
                       <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <button onClick={() => startEdit(cliente)} className="p-2 text-muted-foreground hover:text-white hover:bg-white/5 rounded-lg"><Edit2 size={16} /></button>
-                        <button onClick={() => onDelete(cliente.id)} className="p-2 text-muted-foreground hover:text-rose-500 hover:bg-rose-500/10 rounded-lg"><Trash2 size={16} /></button>
+                        <button onClick={() => startEdit(cliente)} className="p-2 bg-slate-100 text-slate-400 hover:bg-primary hover:text-white rounded-lg transition-all"><Edit2 size={14} /></button>
+                        <button onClick={() => onDelete(cliente.id)} className="p-2 bg-slate-100 text-slate-400 hover:bg-rose-500 hover:text-white rounded-lg transition-all"><Trash2 size={14} /></button>
                       </div>
                     </td>
                   </>
                 )}
               </tr>
             ))}
+
+            {clientes.length === 0 && (
+              <tr>
+                <td colSpan={7} className="px-6 py-12 text-center text-slate-400 italic">
+                  Nenhum cliente cadastrado.
+                </td>
+              </tr>
+            )}
           </tbody>
         </table>
       </div>

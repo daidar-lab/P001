@@ -354,6 +354,25 @@ model HistoricoFluxoTrabalho {
   @@map("historico_fluxo_trabalho")
 }
 
+enum Cargo {
+  ADMIN
+  USER
+
+  @@map("cargos")
+}
+
+model Usuario {
+  id           String   @id @default(uuid()) @db.Uuid
+  username     String   @unique
+  passwordHash String   @map("password_hash")
+  cargo        Cargo    @default(USER)
+  nome         String?
+  criadoEm     DateTime @default(now()) @map("criado_em") @db.Timestamptz()
+  atualizadoEm DateTime @default(now()) @updatedAt @map("atualizado_em") @db.Timestamptz()
+
+  @@map("usuarios")
+}
+
 model LogAuditoria {
   id         String    @id @default(uuid()) @db.Uuid
   tipoObjeto String    @map("tipo_objeto")

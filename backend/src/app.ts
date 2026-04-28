@@ -14,6 +14,9 @@ import { errorHandler, notFoundHandler } from './middleware/error-handler';
 import clientesRoutes from './modules/clientes/clientes.routes';
 import relatoriosRoutes from './modules/relatorios/relatorios.routes';
 import equipamentosRoutes from './modules/equipamentos/equipamentos.routes';
+import authRoutes from './modules/auth/auth.routes';
+import usuariosRoutes from './modules/usuarios/usuarios.routes';
+import { authMiddleware } from './middlewares/auth.middleware';
 
 const app = express();
 const PORT = parseInt(process.env.PORT || '3001', 10);
@@ -32,9 +35,13 @@ if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir, { recursive: true });
 if (!fs.existsSync(outputDir)) fs.mkdirSync(outputDir, { recursive: true });
 
 // ─── Rotas da API ───
-app.use('/api/clientes', clientesRoutes);
-app.use('/api/relatorios', relatoriosRoutes);
-app.use('/api/equipamentos', equipamentosRoutes);
+app.use('/api/auth', authRoutes);
+app.use('/api/usuarios', usuariosRoutes);
+
+// Rotas Protegidas
+app.use('/api/clientes', authMiddleware, clientesRoutes);
+app.use('/api/relatorios', authMiddleware, relatoriosRoutes);
+app.use('/api/equipamentos', authMiddleware, equipamentosRoutes);
 
 // ─── Health Check ───
 app.get('/api/health', (_req, res) => {

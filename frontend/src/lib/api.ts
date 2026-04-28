@@ -1,21 +1,30 @@
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/api";
 
-export async function fetchStats() {
+export async function fetchStats(token?: string | null) {
   try {
+    const headers: any = { "cache": "no-store" };
+    if (token) {
+      headers["Authorization"] = `Bearer ${token}`;
+    }
+
     const res = await fetch(`${API_URL}/relatorios/stats`, {
-      cache: "no-store", // Ensure we get fresh data
+      headers: token ? { "Authorization": `Bearer ${token}` } : {},
+      cache: "no-store",
     });
+    
     if (!res.ok) throw new Error("Falha ao buscar estatísticas");
-    return res.json();
+    const data = await res.json();
+    return data.data; // Retornando .data para facilitar o uso
   } catch (error) {
     console.error("Error fetching stats:", error);
     return null;
   }
 }
 
-export async function fetchRelatorios() {
+export async function fetchRelatorios(token?: string | null) {
   try {
     const res = await fetch(`${API_URL}/relatorios`, {
+      headers: token ? { "Authorization": `Bearer ${token}` } : {},
       cache: "no-store",
     });
     if (!res.ok) throw new Error("Falha ao buscar relatórios");
