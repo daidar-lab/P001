@@ -23,7 +23,6 @@ export default function RelatoriosPage() {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
-  const [isStatusMenuOpen, setIsStatusMenuOpen] = useState(false);
   
   // Filtros
   const [status, setStatus] = useState("");
@@ -99,41 +98,20 @@ export default function RelatoriosPage() {
         </div>
 
         <div className="flex items-center gap-3 flex-wrap">
-          {/* Custom Status Dropdown */}
-          <div className="relative">
-            <button 
-              onClick={() => setIsStatusMenuOpen(!isStatusMenuOpen)}
-              className="flex items-center gap-2 bg-white/5 border border-white/5 rounded-xl px-4 py-2 text-sm hover:bg-white/10 transition-all min-w-[160px] justify-between"
+          {/* Status Filter - Native for reliability */}
+          <div className="flex items-center gap-2 bg-white/5 border border-white/5 rounded-xl px-3 py-2">
+            <Filter size={16} className="text-primary" />
+            <select 
+              value={status}
+              onChange={(e) => setStatus(e.target.value)}
+              className="bg-transparent text-sm focus:outline-none cursor-pointer text-white [&>option]:bg-white [&>option]:text-black"
             >
-              <div className="flex items-center gap-2">
-                <Filter size={16} className="text-primary" />
-                {statusLabels[status]}
-              </div>
-              <ChevronDown size={14} className={cn("transition-transform", isStatusMenuOpen && "rotate-180")} />
-            </button>
-
-            {isStatusMenuOpen && (
-              <>
-                <div className="fixed inset-0 z-10" onClick={() => setIsStatusMenuOpen(false)} />
-                <div className="absolute top-full left-0 mt-2 w-full bg-[#1a1a24] border border-white/10 rounded-xl shadow-2xl z-20 overflow-hidden animate-in fade-in slide-in-from-top-2">
-                  {Object.entries(statusLabels).map(([key, label]) => (
-                    <button
-                      key={key}
-                      onClick={() => {
-                        setStatus(key);
-                        setIsStatusMenuOpen(false);
-                      }}
-                      className={cn(
-                        "w-full text-left px-4 py-3 text-sm hover:bg-primary/10 transition-colors border-b border-white/5 last:border-0",
-                        status === key && "text-primary bg-primary/5"
-                      )}
-                    >
-                      {label as string}
-                    </button>
-                  ))}
-                </div>
-              </>
-            )}
+              {Object.entries(statusLabels).map(([key, label]) => (
+                <option key={key} value={key}>
+                  {label as string}
+                </option>
+              ))}
+            </select>
           </div>
 
           <div className="flex items-center gap-2 bg-white/5 border border-white/5 rounded-xl px-3 py-2">

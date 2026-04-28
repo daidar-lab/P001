@@ -13,6 +13,7 @@ import { errorHandler, notFoundHandler } from './middleware/error-handler';
 // Rotas
 import clientesRoutes from './modules/clientes/clientes.routes';
 import relatoriosRoutes from './modules/relatorios/relatorios.routes';
+import equipamentosRoutes from './modules/equipamentos/equipamentos.routes';
 
 const app = express();
 const PORT = parseInt(process.env.PORT || '3001', 10);

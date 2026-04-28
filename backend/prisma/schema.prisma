@@ -95,9 +95,28 @@ model Cliente {
   atualizadoEm     DateTime @default(now()) @updatedAt @map("atualizado_em") @db.Timestamptz()
 
   relatorios               Relatorio[]
+  equipamentos             InventarioEquipamento[]
   equipamentosLevantamento EquipamentoLevantamento[]
 
   @@map("clientes")
+}
+
+model InventarioEquipamento {
+  id                String   @id @default(uuid()) @db.Uuid
+  clienteId         String   @map("cliente_id") @db.Uuid
+  descricao         String
+  quantidade        Int      @default(1)
+  potenciaWatts     Decimal  @map("potencia_watts") @db.Decimal(12, 2)
+  horasDia          Decimal  @map("horas_dia") @db.Decimal(5, 2)
+  diasMes           Int      @default(22) @map("dias_mes")
+  consumoMensalKwh  Decimal  @map("consumo_mensal_kwh") @db.Decimal(10, 2)
+  
+  cliente           Cliente  @relation(fields: [clienteId], references: [id], onDelete: Cascade)
+  
+  criadoEm          DateTime @default(now()) @map("criado_em") @db.Timestamptz()
+  atualizadoEm      DateTime @default(now()) @updatedAt @map("atualizado_em") @db.Timestamptz()
+
+  @@map("inventario_equipamentos")
 }
 
 model TemplatePdf {
