@@ -21,7 +21,7 @@ export async function enviarRelatorioPorEmail(options: SendReportEmailOptions) {
     const attachmentBuffer = fs.readFileSync(pdfPath);
 
     const { data, error } = await resend.emails.send({
-      from: 'Audit Energy <relatorios@auditenergy.com.br>', // Certifique-se de validar seu domínio no Resend
+      from: 'Resend <onboarding@resend.dev>', 
       to: [to],
       subject: `Relatório de Auditoria Energética — ${clienteNome} — ${periodoReferencia}`,
       html: `

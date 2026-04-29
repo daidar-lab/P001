@@ -9,12 +9,12 @@ async function main() {
   const cliente = await prisma.cliente.upsert({
     where: { cnpj: "00.000.000/0001-00" },
     update: {
-      emailFinanceiro: "surftrack.davi@gmail.com",
+      emailFinanceiro: "daidar@cervejariacidadeimperial.com.br",
     },
     create: {
       nome: "Davi — Teste Real",
       cnpj: "00.000.000/0001-00",
-      emailFinanceiro: "surftrack.davi@gmail.com",
+      emailFinanceiro: "daidar@cervejariacidadeimperial.com.br",
       endereco: "Rua do Sucesso, 777 - Auditoria/SP",
     },
   });
