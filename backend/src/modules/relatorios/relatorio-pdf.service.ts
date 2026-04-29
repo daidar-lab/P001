@@ -77,28 +77,45 @@ export async function gerarRelatorioPdf(options: GerarPdfOptions): Promise<strin
     INVENTÁRIO DE EQUIPAMENTOS (ESTIMADO):
     - Consumo Estimado Total: ${consumoEstimadoTotal.toFixed(2)} kWh
     - Divergência (Estimado vs Real): ${divergencia.toFixed(2)}%
-    - Equipamentos: ${equipamentos.map(e => `${e.descricao} (${e.quantidade}x ${e.potenciaWatts}W)`).join(', ')}
+    ${equipamentos.length > 0 
+      ? `- Equipamentos: ${equipamentos.map(e => `${e.descricao} (${e.quantidade}x ${e.potenciaWatts}W)`).join(', ')}` 
+      : '- OBSERVAÇÃO: Não há equipamentos cadastrados no inventário deste cliente.'}
     
     INSTRUÇÕES:
     - Escreva uma conclusão técnica e executiva para o relatório.
+    - Se o inventário estiver vazio, destaque a importância de cadastrar os equipamentos para uma análise de divergência precisa.
+    - Se a divergência for alta (fora de 10-15%), sugira auditoria nos equipamentos ou verificação de erros na fatura.
     - Use parágrafos claros.
-    - Destaque se a divergência entre o inventário e a fatura está dentro do esperado (aceitável até 10%).
-    - Sugira oportunidades de economia baseadas nos dados (ex: se o consumo for alto, sugerir solar ou troca de equipamentos).
-    - Formate em HTML (use tags <p>, <strong>, <ul>, <li>).
+    - Formate OBRIGATORIAMENTE em HTML (use tags <p>, <strong>, <ul>, <li>).
     - Mantenha um tom profissional e assertivo.
-    - NÃO use saudações, foque apenas no corpo do texto da conclusão.
+    - NÃO use saudações ou introduções, comece direto na análise técnica.
   `;
 
   let conclusaoIa = "Não foi possível gerar a análise automática no momento.";
   try {
+    console.log(`[OLLAMA] Gerando conclusão para relatório ${relatorioId}...`);
     const response = await ollama.generate({
-      model: 'llama3', // ou mistral, etc.
+      model: 'llama3', 
       prompt: prompt,
       stream: false
     });
-    conclusaoIa = response.response;
+    
+    if (response.response && response.response.trim().length > 0) {
+      conclusaoIa = response.response;
+      console.log(`[OLLAMA] Conclusão gerada com sucesso (${conclusaoIa.length} caracteres)`);
+    } else {
+      console.warn(`[OLLAMA] Resposta vazia do modelo para o relatório ${relatorioId}`);
+      conclusaoIa = `
+        <p><strong>Análise Técnica:</strong> O consumo registrado no período (${consumoTotalFaturas} kWh) foi processado.</p>
+        <p>Não foi possível gerar uma recomendação detalhada via IA no momento, mas recomendamos a revisão do inventário de equipamentos para identificar possíveis discrepâncias.</p>
+      `;
+    }
   } catch (error) {
     console.error('[OLLAMA] Erro ao gerar conclusão:', error);
+    conclusaoIa = `
+      <p><strong>Aviso:</strong> A análise automática de IA está temporariamente indisponível.</p>
+      <p>Consumo Real: ${consumoTotalFaturas} kWh. Valor Total: R$ ${valorTotalFaturas.toFixed(2)}.</p>
+    `;
   }
 
   // Carregar Logo Audit Energy em Base64

@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
+import { API_URL } from "@/config/api";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 
@@ -33,7 +34,7 @@ export default function ArquivosImportPage() {
     if (!token) return;
     setLoading(true);
     try {
-      const res = await fetch("http://localhost:3001/api/relatorios", {
+      const res = await fetch(`${API_URL}/api/relatorios`, {
         headers: { "Authorization": `Bearer ${token}` }
       });
       const data = await res.json();
@@ -76,7 +77,7 @@ export default function ArquivosImportPage() {
     formData.append("arquivo", file);
 
     try {
-      const res = await fetch("http://localhost:3001/api/relatorios/upload", {
+      const res = await fetch(`${API_URL}/api/relatorios/upload`, {
         method: "POST",
         headers: { "Authorization": `Bearer ${token}` },
         body: formData,

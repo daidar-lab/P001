@@ -36,6 +36,21 @@ export function parseDate(dateStr: string | null | undefined): Date | null {
     return isNaN(date.getTime()) ? null : date;
   }
 
+  // Formato MMM/YY (ex: jan/26, fev/26) - Comum em exportações brasileiras
+  if (/^[a-zA-Z]{3}\/\d{2}$/.test(cleaned)) {
+    const [mesStr, yearStr] = cleaned.toLowerCase().split('/');
+    const mesesMapping: Record<string, string> = {
+      jan: '01', fev: '02', mar: '03', abr: '04', mai: '05', jun: '06',
+      jul: '07', ago: '08', set: '09', out: '10', nov: '11', dez: '12'
+    };
+    const month = mesesMapping[mesStr];
+    if (month) {
+      const year = `20${yearStr}`;
+      const date = new Date(`${year}-${month}-01T00:00:00`);
+      return isNaN(date.getTime()) ? null : date;
+    }
+  }
+
   return null;
 }
 

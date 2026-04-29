@@ -221,6 +221,7 @@ function isValidDate(value: string): boolean {
     /^\d{2}\/\d{2}\/\d{4}$/.test(cleaned) ||
     /^\d{4}-\d{2}-\d{2}$/.test(cleaned) ||
     /^\d{2}-\d{2}-\d{4}$/.test(cleaned) ||
-    /^\d{2}\/\d{4}$/.test(cleaned)
+    /^\d{2}\/\d{4}$/.test(cleaned) ||
+    /^[a-zA-Z]{3}\/\d{2}$/i.test(cleaned)
   );
 }

@@ -1,4 +1,6 @@
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/api";
+import { API_URL } from "@/config/api";
+
+const BASE_API_URL = `${API_URL}/api`;
 
 export async function fetchStats(token?: string | null) {
   try {
@@ -7,7 +9,7 @@ export async function fetchStats(token?: string | null) {
       headers["Authorization"] = `Bearer ${token}`;
     }
 
-    const res = await fetch(`${API_URL}/relatorios/stats`, {
+    const res = await fetch(`${BASE_API_URL}/relatorios/stats`, {
       headers: token ? { "Authorization": `Bearer ${token}` } : {},
       cache: "no-store",
     });
@@ -23,7 +25,7 @@ export async function fetchStats(token?: string | null) {
 
 export async function fetchRelatorios(token?: string | null) {
   try {
-    const res = await fetch(`${API_URL}/relatorios`, {
+    const res = await fetch(`${BASE_API_URL}/relatorios`, {
       headers: token ? { "Authorization": `Bearer ${token}` } : {},
       cache: "no-store",
     });

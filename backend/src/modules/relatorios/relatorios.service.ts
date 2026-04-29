@@ -113,13 +113,15 @@ export async function obterEstatisticas() {
     }),
     prisma.relatorio.findMany({
       where: {
-        status: 'enviado',
-        atualizadoEm: { gte: seteDiasAtras }
+        status: { in: ['processado', 'enviado', 'pronto_revisao'] },
+        criadoEm: { gte: seteDiasAtras }
       },
-      select: { atualizadoEm: true }
+      select: { criadoEm: true }
     })
   ]);
 
+  console.log(`[STATS] Total encontrados para gráfico: ${enviadosRecentemente.length}`);
+  
   // Processar dados para o gráfico (agrupar por dia)
   const diasSemana = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
   const enviadosPorDia = Array.from({ length: 7 }, (_, i) => {
@@ -127,8 +129,9 @@ export async function obterEstatisticas() {
     d.setDate(d.getDate() - i);
     const label = diasSemana[d.getDay()];
     const count = enviadosRecentemente.filter(r => 
-      new Date(r.atualizadoEm).toDateString() === d.toDateString()
+      new Date(r.criadoEm).toDateString() === d.toDateString()
     ).length;
+    console.log(`[STATS] Dia: ${label} (${d.toDateString()}) -> Count: ${count}`);
     return { name: label, total: count };
   }).reverse();
 

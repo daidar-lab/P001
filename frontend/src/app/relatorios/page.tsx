@@ -13,6 +13,7 @@ import {
   MoreVertical,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+import { API_URL } from "@/config/api";
 import { cn } from "@/lib/utils";
 
 export default function RelatoriosPage() {
@@ -42,7 +43,7 @@ export default function RelatoriosPage() {
         dataInicio: dateRange.start,
         dataFim: dateRange.end,
       });
-      const res = await fetch(`http://localhost:3001/api/relatorios?${query}`, {
+      const res = await fetch(`${API_URL}/api/relatorios?${query}`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -60,7 +61,7 @@ export default function RelatoriosPage() {
 
   const handleDownload = async (id: string, codigo: string) => {
     try {
-      const res = await fetch(`http://localhost:3001/api/relatorios/${id}/pdf`, {
+      const res = await fetch(`${API_URL}/api/relatorios/${id}/pdf`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
