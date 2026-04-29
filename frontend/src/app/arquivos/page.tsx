@@ -17,6 +17,7 @@ import {
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
 import { API_URL } from "@/config/api";
+import { Pagination } from "@/components/Pagination";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 
@@ -24,21 +25,26 @@ export default function ArquivosImportPage() {
   const [importStatus, setImportStatus] = useState<"idle" | "uploading" | "success">("idle");
   const [relatorios, setRelatorios] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
   const { token } = useAuth();
 
   useEffect(() => {
     if (token) fetchRelatoriosList();
-  }, [token]);
+  }, [token, page]);
 
   const fetchRelatoriosList = async () => {
     if (!token) return;
     setLoading(true);
     try {
-      const res = await fetch(`${API_URL}/api/relatorios`, {
+      const res = await fetch(`${API_URL}/api/relatorios?page=${page}&limit=10`, {
         headers: { "Authorization": `Bearer ${token}` }
       });
       const data = await res.json();
-      if (data.success) setRelatorios(data.data || []);
+      if (data.success) {
+        setRelatorios(data.data || []);
+        setTotalPages(data.pagination.totalPages || 1);
+      }
     } catch (err) {
       console.error(err);
     }
@@ -272,6 +278,12 @@ export default function ArquivosImportPage() {
                   </tbody>
                 </table>
               </div>
+
+              <Pagination 
+                currentPage={page} 
+                totalPages={totalPages} 
+                onPageChange={setPage} 
+              />
             </div>
           </div>
         </div>

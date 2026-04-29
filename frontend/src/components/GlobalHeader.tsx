@@ -12,6 +12,7 @@ import {
   Calculator,
   Menu,
   Zap,
+  LayoutGrid,
   ChevronRight
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -21,6 +22,7 @@ const navItems = [
   { icon: LayoutDashboard, label: "Dashboard", href: "/" },
   { icon: FileText, label: "Relatórios", href: "/relatorios" },
   { icon: FolderOpen, label: "Arquivos", href: "/arquivos" },
+  { icon: LayoutGrid, label: "Inventário", href: "/inventario" },
   { icon: Calculator, label: "Ferramentas", href: "/ferramentas" },
   { icon: Users, label: "Usuários", href: "/analytics", adminOnly: true },
 ];

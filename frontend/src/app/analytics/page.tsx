@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { useAuth } from "@/contexts/AuthContext";
+import { API_URL } from "@/config/api";
 import { 
   Users, 
   UserPlus, 
@@ -45,7 +46,7 @@ export default function AnalyticsPage() {
     if (!token) return;
     setLoading(true);
     try {
-      const res = await fetch("http://localhost:3001/api/usuarios", {
+      const res = await fetch(`${API_URL}/api/usuarios`, {
         headers: { "Authorization": `Bearer ${token}` }
       });
       const data = await res.json();
@@ -65,7 +66,7 @@ export default function AnalyticsPage() {
     setSaving(true);
     setError("");
     try {
-      const res = await fetch("http://localhost:3001/api/usuarios", {
+      const res = await fetch(`${API_URL}/api/usuarios`, {
         method: "POST",
         headers: { 
           "Content-Type": "application/json",
@@ -90,7 +91,7 @@ export default function AnalyticsPage() {
   const handleDeleteUser = async (id: string) => {
     if (!window.confirm("Tem certeza que deseja excluir este usuário?")) return;
     try {
-      const res = await fetch(`http://localhost:3001/api/usuarios/${id}`, {
+      const res = await fetch(`${API_URL}/api/usuarios/${id}`, {
         method: "DELETE",
         headers: { "Authorization": `Bearer ${token}` }
       });

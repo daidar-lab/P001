@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
+import { API_URL } from "@/config/api";
 
 export default function InventarioPage() {
   const [clientes, setClientes] = useState<any[]>([]);
@@ -26,7 +27,7 @@ export default function InventarioPage() {
   // Carregar Clientes
   useEffect(() => {
     if (!token) return;
-    fetch("http://localhost:3001/api/clientes", {
+    fetch(`${API_URL}/api/clientes`, {
       headers: { "Authorization": `Bearer ${token}` }
     })
       .then(res => res.json())
@@ -47,7 +48,7 @@ export default function InventarioPage() {
     if (!token) return;
     setLoading(true);
     try {
-      const res = await fetch(`http://localhost:3001/api/equipamentos?clienteId=${clienteId}`, {
+      const res = await fetch(`${API_URL}/api/equipamentos?clienteId=${clienteId}`, {
         headers: { "Authorization": `Bearer ${token}` }
       });
       const data = await res.json();
@@ -61,7 +62,7 @@ export default function InventarioPage() {
   const handleAddEquipamento = async (item: any) => {
     if (!selectedCliente || !token) return;
     try {
-      const res = await fetch("http://localhost:3001/api/equipamentos", {
+      const res = await fetch(`${API_URL}/api/equipamentos`, {
         method: "POST",
         headers: { 
           "Content-Type": "application/json",
@@ -78,7 +79,7 @@ export default function InventarioPage() {
   const handleDeleteEquipamento = async (id: string) => {
     if (!token) return;
     try {
-      await fetch(`http://localhost:3001/api/equipamentos/${id}`, { 
+      await fetch(`${API_URL}/api/equipamentos/${id}`, { 
         method: "DELETE",
         headers: { "Authorization": `Bearer ${token}` }
       });
@@ -95,7 +96,7 @@ export default function InventarioPage() {
       const { descricao, quantidade, potenciaWatts, horasDia, diasMes } = item;
       const updateData = { descricao, quantidade, potenciaWatts, horasDia, diasMes };
 
-      const res = await fetch(`http://localhost:3001/api/equipamentos/${id}`, {
+      const res = await fetch(`${API_URL}/api/equipamentos/${id}`, {
         method: "PATCH",
         headers: { 
           "Content-Type": "application/json",

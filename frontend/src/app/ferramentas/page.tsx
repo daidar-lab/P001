@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { ClientesTable } from "@/components/ClientesTable";
+import { Pagination } from "@/components/Pagination";
 import { 
   Users, 
   Upload, 
@@ -16,27 +17,33 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
+import { API_URL } from "@/config/api";
 
 export default function FerramentasPage() {
   const [activeTab, setActiveTab] = useState<"gestao" | "importar">("gestao");
   const [clientes, setClientes] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
   const [importStatus, setImportStatus] = useState<"idle" | "uploading" | "success">("idle");
   const { token } = useAuth();
 
   useEffect(() => {
     if (token) fetchClientes();
-  }, [token]);
+  }, [token, page]);
 
   const fetchClientes = async () => {
     if (!token) return;
     setLoading(true);
     try {
-      const res = await fetch("http://localhost:3001/api/clientes", {
+      const res = await fetch(`${API_URL}/api/clientes?page=${page}&limit=10`, {
         headers: { "Authorization": `Bearer ${token}` }
       });
       const data = await res.json();
-      setClientes(data.data || []);
+      if (data.success) {
+        setClientes(data.data || []);
+        setTotalPages(data.pagination.totalPages || 1);
+      }
     } catch (err) {
       console.error(err);
     }
@@ -46,7 +53,7 @@ export default function FerramentasPage() {
   const handleAddCliente = async (item: any) => {
     if (!token) return;
     try {
-      await fetch("http://localhost:3001/api/clientes", {
+      await fetch(`${API_URL}/api/clientes`, {
         method: "POST",
         headers: { 
           "Content-Type": "application/json",
@@ -63,7 +70,7 @@ export default function FerramentasPage() {
   const handleDeleteCliente = async (id: string) => {
     if (!token) return;
     try {
-      await fetch(`http://localhost:3001/api/clientes/${id}`, { 
+      await fetch(`${API_URL}/api/clientes/${id}`, { 
         method: "DELETE",
         headers: { "Authorization": `Bearer ${token}` }
       });
@@ -80,7 +87,7 @@ export default function FerramentasPage() {
       const { nome, cnpj, endereco, cidade, responsavel, emailFinanceiro } = item;
       const updateData = { nome, cnpj, endereco, cidade, responsavel, emailFinanceiro };
 
-      const res = await fetch(`http://localhost:3001/api/clientes/${id}`, {
+      const res = await fetch(`${API_URL}/api/clientes/${id}`, {
         method: "PUT",
         headers: { 
           "Content-Type": "application/json",
@@ -114,7 +121,7 @@ export default function FerramentasPage() {
     formData.append("arquivo", file);
 
     try {
-      const res = await fetch("http://localhost:3001/api/clientes/importar", {
+      const res = await fetch(`${API_URL}/api/clientes/importar`, {
         method: "POST",
         headers: { "Authorization": `Bearer ${token}` },
         body: formData,
@@ -193,6 +200,12 @@ export default function FerramentasPage() {
               onDelete={handleDeleteCliente}
               onUpdate={handleUpdateCliente}
               loading={loading}
+            />
+
+            <Pagination 
+              currentPage={page} 
+              totalPages={totalPages} 
+              onPageChange={setPage} 
             />
           </div>
         ) : (

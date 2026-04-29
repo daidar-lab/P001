@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { API_URL } from "@/config/api";
+import { Pagination } from "@/components/Pagination";
 import { cn } from "@/lib/utils";
 
 export default function RelatoriosPage() {
@@ -210,28 +211,11 @@ export default function RelatoriosPage() {
             </table>
           </div>
 
-          {/* Pagination */}
-          <div className="p-6 bg-slate-50/50 flex items-center justify-between border-t border-slate-100">
-            <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">
-              Página <span className="text-slate-900">{page}</span> de <span className="text-slate-900">{totalPages}</span>
-            </p>
-            <div className="flex items-center gap-2">
-              <button 
-                onClick={() => setPage(p => Math.max(1, p - 1))}
-                disabled={page === 1}
-                className="p-2.5 bg-white border border-slate-200 rounded-xl disabled:opacity-30 hover:bg-slate-50 text-slate-600 transition-all shadow-sm"
-              >
-                <ChevronLeft size={18} />
-              </button>
-              <button 
-                onClick={() => setPage(p => Math.min(totalPages, p + 1))}
-                disabled={page === totalPages}
-                className="p-2.5 bg-white border border-slate-200 rounded-xl disabled:opacity-30 hover:bg-slate-50 text-slate-600 transition-all shadow-sm"
-              >
-                <ChevronRight size={18} />
-              </button>
-            </div>
-          </div>
+          <Pagination 
+            currentPage={page} 
+            totalPages={totalPages} 
+            onPageChange={setPage} 
+          />
         </div>
       </main>
     </ProtectedRoute>
