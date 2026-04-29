@@ -1,140 +1,473 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
     <meta charset="UTF-8">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800;900&display=swap');
-        
-        :root {
-            --primary: #10b981;
-            --primary-dark: #059669;
-            --slate-900: #0f172a;
-            --slate-600: #475569;
-            --slate-400: #94a3b8;
-            --slate-100: #f1f5f9;
-        }
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
 
-        body {
-            font-family: 'Inter', sans-serif;
-            margin: 0;
-            padding: 0;
-            color: var(--slate-900);
-            background: white;
-        }
+:root {
+  --primary: #10b981;
+  --primary-soft: #ecfdf5;
+  --primary-dark: #059669;
 
-        .page {
-            width: 210mm;
-            min-height: 296mm;
-            padding: 20mm;
-            box-sizing: border-box;
-            position: relative;
-            page-break-after: always;
-        }
+  --slate-900: #0f172a;
+  --slate-700: #334155;
+  --slate-600: #475569;
+  --slate-400: #94a3b8;
+  --slate-200: #e2e8f0;
+  --slate-100: #f1f5f9;
+}
 
-        /* Capa Reestilizada */
-        .cover {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            height: 250mm;
-        }
+body {
+  font-family: 'Inter', sans-serif;
+  margin: 0;
+  color: var(--slate-900);
+  background: #ffffff;
+  font-size: 13px;
+}
 
-        .report-title {
-            margin-bottom: 50px;
-        }
+/* Página */
+.page {
+  width: 210mm;
+  min-height: 297mm;
+  padding: 22mm;
+  box-sizing: border-box;
+  position: relative;
+  page-break-after: always;
+}
 
-        .report-title h1 {
-            font-size: 32px;
-            font-weight: 900;
-            color: var(--slate-900);
-            margin-bottom: 10px;
-            text-transform: uppercase;
-        }
+/* Títulos */
+h1 { font-size: 30px; font-weight: 900; margin: 0; }
+h2 { font-size: 18px; font-weight: 600; }
+h3 {
+  font-size: 18px;
+  font-weight: 800;
+  margin: 32px 0 12px;
+  border-left: 4px solid var(--primary);
+  padding-left: 12px;
+}
+h4 {
+  font-size: 14px;
+  font-weight: 800;
+  margin: 24px 0 10px;
+  text-transform: uppercase;
+  color: var(--slate-700);
+}
 
-        .report-title h2 {
-            font-size: 18px;
-            font-weight: 400;
-            color: var(--primary);
-            letter-spacing: 3px;
-        }
+/* Capa */
+.cover {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  height: 250mm;
+  text-align: center;
+}
 
-        .brand-card {
-            width: 100%;
-            height: 400px;
-            background: linear-gradient(135deg, var(--slate-900) 0%, #1e293b 100%);
-            border-radius: 40px;
-            margin: 40px 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-        }
+.brand-card {
+  margin: 48px 0;
+  height: 380px;
+  border-radius: 28px;
+  background: linear-gradient(135deg, var(--slate-900), #1e293b);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
 
-        .audit-logo-large {
-            width: 350px;
-            filter: brightness(0) invert(1); /* Torna o logo branco se for escuro */
-        }
+.audit-logo-large {
+  width: 320px;
+  filter: brightness(0) invert(1);
+}
 
-        .cover-footer {
-            margin-top: 50px;
-            width: 100%;
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-end;
-            border-top: 2px solid var(--slate-100);
-            padding-top: 30px;
-        }
+/* Cards */
+.section-box {
+  background: #fff;
+  border: 1px solid var(--slate-200);
+  border-radius: 16px;
+  padding: 20px 24px;
+  margin: 16px 0;
+}
 
-        /* Tabelas e Quebras */
-        table {
-            width: 100%;
-            border-collapse: separate;
-            border-spacing: 0;
-            margin: 20px 0;
-            page-break-inside: auto;
-        }
+/* Grid de informações */
+.grid-info {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px 32px;
+}
 
-        tr {
-            page-break-inside: avoid;
-            page-break-after: auto;
-        }
+.info-item label {
+  display: block;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--slate-400);
+}
 
-        thead {
-            display: table-header-group;
-        }
+.info-item span {
+  font-size: 13px;
+  font-weight: 600;
+}
 
-        /* Gráfico */
-        .chart-wrapper {
-            width: 100%;
-            padding: 20px;
-            background: white;
-            border-radius: 24px;
-            border: 1px solid var(--slate-100);
-            margin: 20px 0;
-        }
+/* Tags */
+.badge {
+  background: var(--primary-soft);
+  color: var(--primary-dark);
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 999px;
+  margin-left: 6px;
+}
 
-        #consumptionChart {
-            width: 100% !important;
-            height: 300px !important;
-        }
+/* Tabelas */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 12px;
+  font-size: 12px;
+}
 
-        .footer-page {
-            position: absolute;
-            bottom: 10mm;
-            left: 20mm;
-            right: 20mm;
-            display: flex;
-            justify-content: space-between;
-            font-size: 9px;
-            color: var(--slate-400);
-            border-top: 1px solid var(--slate-100);
-            padding-top: 10px;
-        }
+thead th {
+  background: var(--slate-900);
+  color: #fff;
+  font-weight: 700;
+  padding: 10px;
+}
+
+tbody td {
+  padding: 9px 10px;
+  border-bottom: 1px solid var(--slate-200);
+}
+
+tbody tr:nth-child(even) {
+  background: #fafafa;
+}
+
+tr.total td {
+  font-weight: 800;
+  background: var(--primary-soft);
+}
+
+/* Gráfico */
+.chart-wrapper {
+  background: #fff;
+  border-radius: 16px;
+  padding: 16px;
+  border: 1px solid var(--slate-200);
+  margin-top: 16px;
+}
+
+/* Caixa de destaque */
+.highlight-box {
+  background: var(--primary-soft);
+  border-left: 5px solid var(--primary);
+  padding: 16px 20px;
+  border-radius: 12px;
+  margin-top: 20px;
+}
+
+/* Rodapé */
+.footer-page {
+  position: absolute;
+  bottom: 12mm;
+  left: 22mm;
+  right: 22mm;
+  display: flex;
+  justify-content: space-between;
+  font-size: 9px;
+  color: var(--slate-400);
+  border-top: 1px solid var(--slate-200);
+  padding-top: 8px;
+}
+/* Texto auxiliar */
+.text-muted {
+  color: var(--slate-600);
+  font-size: 13px;
+}
+
+/* Lista elegante */
+.bullet-list {
+  margin: 12px 0 0;
+  padding-left: 18px;
+}
+
+.bullet-list li {
+  margin-bottom: 8px;
+  line-height: 1.5;
+}
+
+/* Tabela Comparativa */
+.compare-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 16px;
+  font-size: 13px;
+}
+
+.compare-table thead th {
+  background: var(--slate-900);
+  color: #fff;
+  padding: 10px;
+  text-align: left;
+}
+
+.compare-table tbody td {
+  padding: 9px 10px;
+  border-bottom: 1px solid var(--slate-200);
+}
+
+.compare-table tbody tr:nth-child(even) {
+  background: #fafafa;
+}
+
+/* Cards informativos */
+.info-cards {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  margin-top: 20px;
+}
+
+.info-card {
+  border: 1px solid var(--slate-200);
+  border-radius: 14px;
+  padding: 14px;
+  font-size: 13px;
+  background: #fff;
+}
+
+.info-card.success {
+  border-left: 5px solid var(--primary);
+  background: var(--primary-soft);
+}
+
+.info-card.warning {
+  border-left: 5px solid #f59e0b;
+  background: #fff7ed;
+}
+
+/* Fórmula */
+.formula-box {
+  margin-top: 20px;
+  padding: 16px;
+  border-radius: 14px;
+  background: var(--slate-100);
+  border: 1px dashed var(--slate-400);
+  font-size: 13px;
+}
+/* =========================
+   REFINAMENTO TIPOGRÁFICO
+   Kobe Mode ON 🐍
+========================= */
+
+/* Parágrafos gerais */
+.page p {
+  font-size: 13px;
+  line-height: 1.65;
+  color: var(--slate-700);
+  margin: 10px 0;
+}
+
+/* Parágrafos longos viram blocos elegantes */
+.page p:not(.text-muted):not(.no-box) {
+  max-width: 100%;
+}
+
+/* Links mais sóbrios (PDF friendly) */
+.page a {
+  color: var(--primary-dark);
+  text-decoration: none;
+  font-weight: 600;
+  word-break: break-all;
+}
+
+.page a:hover {
+  text-decoration: underline;
+}
+
+/* Seções explicativas grandes */
+.explanation-box {
+  background: #ffffff;
+  border: 1px solid var(--slate-200);
+  border-radius: 14px;
+  padding: 18px 22px;
+  margin: 20px 0;
+}
+
+/* Usado para textos analíticos */
+.analysis-text p {
+  margin: 8px 0;
+}
+
+/* Listas: menos HTML, mais relatório */
+.page ul {
+  padding-left: 18px;
+  margin: 10px 0 14px;
+}
+
+.page ul li {
+  font-size: 13px;
+  line-height: 1.6;
+  margin-bottom: 6px;
+  color: var(--slate-700);
+}
+
+/* Fórmulas destacadas */
+.formula-box {
+  margin-top: 18px;
+  padding: 16px 20px;
+  border-radius: 14px;
+  background: var(--slate-100);
+  border-left: 4px solid var(--primary);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+/* Bloco pré-checklist (ficava “jogado”) */
+.pre-checklist {
+  background: #ffffff;
+  border: 1px solid var(--slate-200);
+  border-radius: 16px;
+  padding: 20px 24px;
+  margin-top: 24px;
+}
+
+.pre-checklist p {
+  margin: 8px 0;
+}
+
+/* Identificação antes do checklist */
+.identity-box {
+  background: #ffffff;
+  border: 1px solid var(--slate-200);
+  border-radius: 16px;
+  padding: 18px 22px;
+  margin-top: 16px;
+}
+
+.identity-box p {
+  margin: 6px 0;
+  font-size: 13px;
+}
+
+.identity-box strong {
+  color: var(--slate-900);
+}
+
+/* Texto técnico depois das tabelas */
+.tech-summary {
+  margin-top: 22px;
+  padding-left: 12px;
+  border-left: 3px solid var(--primary);
+}
+
+.tech-summary p {
+  margin: 6px 0;
+}
+
+.link-meta {
+  font-size: 12px;
+  color: var(--slate-600);
+  margin-bottom: 6px;
+}
+/* Ritmo vertical refinado */
+h3 + p,
+h4 + p {
+  margin-top: 6px;
+}
+
+.section-box + h3 {
+  margin-top: 40px;
+}
+
+.section-box + .section-box {
+  margin-top: 20px;
+}
+
+/* ====== PRE-CHECKLIST — AJUSTE FINAL ====== */
+
+.pre-checklist {
+  background: #ffffff;
+  border: 1px solid var(--slate-200);
+  border-radius: 18px;
+  padding: 24px 28px;
+  margin-top: 28px;
+  max-width: 100%;
+}
+
+/* Limita largura do texto para leitura confortável */
+.pre-checklist p {
+  max-width: 640px;
+  line-height: 1.65;
+  margin: 10px 0;
+}
+
+/* Primeira frase = contexto */
+.pre-checklist p:first-child {
+  font-weight: 500;
+  color: var(--slate-700);
+}
+
+/* Fórmula vira bloco técnico */
+.pre-checklist p strong {
+  display: inline-block;
+  margin-bottom: 6px;
+  font-size: 13px;
+  color: var(--slate-900);
+}
+
+/* Destaca a fórmula visualmente */
+.pre-checklist p:nth-child(2) {
+  background: var(--slate-100);
+  border-left: 4px solid var(--primary);
+  padding: 12px 16px;
+  border-radius: 10px;
+  font-family: 'Inter', sans-serif;
+}
+
+/* Última frase = objetivo */
+.pre-checklist p:last-child {
+  margin-top: 14px;
+  font-size: 12.5px;
+  color: var(--slate-600);
+}
+/* ====== CENTRALIZAÇÃO ÓTICA DE CONTEÚDO ====== */
+
+/* Container de leitura */
+.page > * {
+  max-width: 165mm;        /* largura confortável para leitura */
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Exceções: capa e rodapé continuam full */
+.cover,
+.footer-page {
+  max-width: none;
+}
+
+/* Ajuste fino para textos corridos */
+.page p,
+.page ul,
+.page table,
+.section-box,
+.tech-summary,
+.pre-checklist,
+.identity-box {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Listas não grudam na esquerda */
+.page ul {
+  padding-left: 20px;
+}
+
+
     </style>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
+
 <body>
     <!-- PÁGINA 1: CAPA -->
     <div class="page">
@@ -146,16 +479,19 @@
 
             <div class="brand-card">
                 <!-- Logo da Audit Energy no Card Central -->
-                <img src="{{auditLogo}}" class="audit-logo-large" alt="Audit Energy">
+                <img src="logo-audit.png" class="audit-logo-large" alt="Audit Energy">
             </div>
 
             <div class="cover-footer">
                 <div class="meta-info">
-                    <span style="font-size: 10px; font-weight: 800; color: var(--slate-400); text-transform: uppercase;">Mês de Referência</span>
+                    <span
+                        style="font-size: 10px; font-weight: 800; color: var(--slate-400); text-transform: uppercase;">Mês
+                        de Referência</span>
                     <p style="font-size: 18px; font-weight: 700; margin: 5px 0 0 0;">{{periodoReferencia}}</p>
                 </div>
                 <div class="meta-info" style="text-align: right;">
-                    <span style="font-size: 10px; font-weight: 800; color: var(--slate-400); text-transform: uppercase;">Responsável</span>
+                    <span
+                        style="font-size: 10px; font-weight: 800; color: var(--slate-400); text-transform: uppercase;">Responsável</span>
                     <p style="font-size: 18px; font-weight: 700; margin: 5px 0 0 0;">{{responsavel}}</p>
                 </div>
             </div>
@@ -196,8 +532,53 @@
 
         <h3>Objetivo</h3>
         <p style="font-size: 14px; color: var(--slate-600); line-height: 1.6;">
-            Esta análise pretende verificar possíveis inconsistências na fatura de energia e identificar oportunidades de economia, bem como criar dados e valores para comparação e auditoria mensal.
+            Esta análise pretende verificar possíveis inconsistências na fatura de energia e identificar oportunidades
+            de economia, bem como criar dados e valores para comparação e auditoria mensal.
         </p>
+
+        <!-- Identificação do Relatório -->
+        <div class="section-box" style="margin-top: 24px;">
+            <h4>Identificação do Relatório</h4>
+
+            <p class="link-meta">
+  <strong>Fonte:</strong>
+  <a href="https://www.powerhub.io/faturas" target="_blank">
+    https://www.powerhub.io/faturas
+  </a>
+</p>
+
+<p>
+  <span class="badge">
+    Fatura importada – {{mesFaturaAnterior}} – Distribuição
+  </span>
+</p>
+
+            <p>
+                <strong>Concessionária:</strong> {{concessionaria}}
+                <span style="background:#e9c5d3; padding:2px 6px;">
+                    Fatura importada – {{mesFatura}} – Distribuição
+                </span>
+            </p>
+
+            <p><strong>Unidade (UC):</strong> {{numeroUnidade}}</p>
+
+            <p>
+                <strong>Período de Medição:</strong> {{periodoMedicao}}
+                <span style="background:#e9c5d3; padding:2px 6px;">
+                    Fatura importada – {{mesFatura}} – Distribuição
+                </span>
+            </p>
+
+            <p>
+                <strong>Enquadramento Tarifário:</strong> {{enquadramento}}
+                <span style="background:#e9c5d3; padding:2px 6px;">
+                    Fatura importada – {{mesFatura}} – Distribuição
+                </span>
+            </p>
+
+            <p><strong>Data de Reajuste:</strong> {{dataReajuste}}</p>
+            <p><strong>Data de Emissão:</strong> {{dataEmissao}}</p>
+        </div>
 
         <div class="footer-page">
             <span>Audit Energy — Relatório Técnico</span>
@@ -205,10 +586,83 @@
         </div>
     </div>
 
+
+    <!-- valor da fatura -->
+
+    <h3 class="section-title">Valor da Fatura</h3>
+
+<p class="link-meta">
+  <strong>Fonte:</strong>
+  <a href="https://www.powerhub.io/faturas" target="_blank">
+    https://www.powerhub.io/faturas
+  </a>
+</p>
+
+<p>
+  <span class="badge">
+    Fatura importada – {{mesFaturaAnterior}} – Distribuição
+  </span>
+</p>
+    <div class="section-box">
+        <div class="grid-info">
+            <div class="info-item">
+                <label>Leitura</label>
+                <span>{{periodoMedicao}}</span>
+            </div>
+
+            <div class="info-item">
+                <label>Consumo</label>
+                <span>{{consumoMensal}} kWh</span>
+            </div>
+
+            <div class="info-item">
+                <label>Tarifa</label>
+                <span>{{enquadramento}}</span>
+            </div>
+
+            <div class="info-item">
+                <label>Valor da Fatura</label>
+                <span><strong>R$ {{valorTotal}}</strong></span>
+            </div>
+
+            <div class="info-item">
+                <label>Custo Médio</label>
+                <span>R$ {{custoMedioMwh}} / MWh</span>
+            </div>
+
+            <div class="info-item">
+                <label>Concessionária</label>
+                <span>{{concessionaria}}</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- analise de faturas-->
+    <h4>Análise</h4>
+    <ul style="font-size:13px; color:var(--slate-600);">
+        <li>Consumo de energia elétrica (kWh).</li>
+        <li>Comparativo com meses anteriores e com o mesmo período do ano anterior.</li>
+        <li>Análise da curva de carga, quando disponível.</li>
+        <li>Detalhamento da geração e consumo, quando aplicável.</li>
+        <li>Conforme detalhamento apresentado nas tabelas e gráficos a seguir.</li>
+    </ul>
+
+    <p class="link-meta">
+  <strong>Fonte:</strong>
+  <a href="https://www.powerhub.io/faturas" target="_blank">
+    https://www.powerhub.io/faturas
+  </a>
+</p>
+
+<p>
+  <span class="badge">
+    Fatura importada – {{mesFaturaAnterior}} – Distribuição
+  </span>
+</p>
     <!-- PÁGINA 3: ANÁLISE DE CONSUMO -->
     <div class="page">
         <h3>Análise de Faturas</h3>
-        
+
         <table>
             <thead>
                 <tr>
@@ -236,20 +690,111 @@
             </tbody>
         </table>
 
+        <!-- tabela de faturas-->
+        <h3>Detalhamento da Fatura</h3>
+
+        <table>
+            <thead style="background:#fbbf24;">
+                <tr>
+                    <th>Grandeza</th>
+                    <th>Registrado</th>
+                    <th>Faturado</th>
+                    <th>Tarifa (R$)</th>
+                    <th>Valor (R$)</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{#each detalhamentoMensal}}
+                <tr>
+                    <td>{{descricao}}</td>
+                    <td>{{registrado}}</td>
+                    <td>{{faturado}}</td>
+                    <td>{{tarifa}}</td>
+                    <td>{{valor}}</td>
+                </tr>
+                {{/each}}
+
+                <tr style="background:#fde68a; font-weight:700;">
+                    <td colspan="4">Total da Concessionária</td>
+                    <td>R$ {{valorTotal}}</td>
+                </tr>
+            </tbody>
+        </table>
+
+
+        <!-- grafico -->
         <h3>Histórico de Consumo</h3>
         <div class="chart-wrapper">
             <canvas id="consumptionChart"></canvas>
         </div>
 
-        <div class="highlight-box">
+        <div class="tech-summary">
             <p style="margin: 0; font-size: 13px; color: var(--slate-900);">
-                A tarifa unitária total corresponde a <strong>R$ {{tarifaUnitaria}}/kWh</strong> (com tributos). No período analisado, os tributos incidentes totalizaram <strong>{{percentualTributos}}%</strong> do valor total da fature.
+                A tarifa unitária total corresponde a <strong>R$ {{tarifaUnitaria}}/kWh</strong> (com tributos). No
+                período analisado, os tributos incidentes totalizaram <strong>{{percentualTributos}}%</strong> do valor
+                total da fature.
             </p>
         </div>
 
-        <div class="footer-page">
-            <span>Audit Energy — Relatório Técnico</span>
+    </div>
+    <!-- Detalhamento da Fatura-->
+    <div class="tech-summary">
+    <p>
+        A tarifa unitária total corresponde a
+        <strong>R$ {{tarifaComTributos}}/kWh</strong> com tributos e
+        <strong>R$ {{tarifaSemTributos}}/kWh</strong> sem tributos.
+    </p>
+
+</div>
+<div class="tech-summary">
+    <p>
+        No período analisado, houve incidência de
+        <strong>{{bandeiraPredominante}}</strong>,
+        representando aproximadamente <strong>{{percentualBandeira}}%</strong>
+        do valor total da fatura.
+    </p>
+</div>
+<div class="tech-summary">
+    <p>
+        Os tributos incidentes (ICMS, PIS e COFINS) totalizaram
+        <strong>{{percentualTributos}}%</strong> do valor da fatura.
+    </p>
+</div>
+<div class="tech-summary">
+    <p>
+        A cobrança de Contribuição para Iluminação Pública (CIP) foi de
+        <strong>R$ {{valorCip}}</strong>.
+    </p>
+</div>
+
+        <!-- texto pre checklist-->
+        <div class="section-box pre-checklist">
+            <p>
+                Com base no checklist enviado, será realizado o cálculo estimado do consumo
+                dos equipamentos elétricos conforme metodologia abaixo.
+            </p>
+
+            <p>
+                <strong>Fórmula do consumo mensal (kWh):</strong><br>
+                (Potência em W × Horas de uso por dia × Dias no mês) ÷ 1.000
+            </p>
+
+            <p>
+                O objetivo é validar possíveis distorções entre o consumo estimado
+                e o consumo registrado pela concessionária.
+            </p>
         </div>
+
+    <!-- Informações Básicas para o Checklist -->
+    <div class="identity-box">
+        <p><strong>Cliente:</strong> {{clienteNome}}</p>
+        <p><strong>Unidade (UC):</strong> {{numeroUnidade}}</p>
+        <p><strong>Concessionária:</strong> {{concessionaria}}</p>
+        <p><strong>Período:</strong> {{periodoMedicao}}</p>
+    </div>
+
+    <div class="footer-page">
+        <span>Audit Energy — Relatório Técnico</span>
     </div>
 
     <!-- PÁGINA 4: CHECKLIST EQUIPAMENTOS -->
@@ -287,7 +832,8 @@
         </table>
 
         <div class="section-box" style="margin-top: 40px; background: #fff; border: 2px solid var(--primary);">
-            <h4 style="margin: 0 0 10px 0; color: var(--primary); font-size: 14px; text-transform: uppercase;">Diferença Técnica</h4>
+            <h4 style="margin: 0 0 10px 0; color: var(--primary); font-size: 14px; text-transform: uppercase;">Diferença
+                Técnica</h4>
             <div style="display: flex; justify-content: space-between; align-items: center;">
                 <div>
                     <p style="margin: 0; font-size: 12px; color: var(--slate-400);">Consumo Real (Fatura)</p>
@@ -295,7 +841,8 @@
                 </div>
                 <div style="text-align: right;">
                     <p style="margin: 0; font-size: 12px; color: var(--slate-400);">Divergência</p>
-                    <p style="margin: 5px 0 0 0; font-size: 20px; font-weight: 800; color: {{divergenciaCor}};">{{percentualDivergencia}}%</p>
+                    <p style="margin: 5px 0 0 0; font-size: 20px; font-weight: 800; color: {{divergenciaCor}};">
+                        {{percentualDivergencia}}%</p>
                 </div>
             </div>
         </div>
@@ -305,6 +852,114 @@
         </div>
     </div>
 
+
+<!-- OPORTUNIDADES DE OTIMIZAÇÃO -->
+<div class="page">
+  <h3>Oportunidades de Otimização</h3>
+
+  <div class="section-box">
+    <h4>Grupo B – Baixa Tensão</h4>
+    <p class="text-muted">
+      Atendidos em baixa tensão (até 2,3 kV).
+    </p>
+
+    <ul class="bullet-list">
+      <li>Não escolhem fornecedor de energia – atendimento exclusivo pela distribuidora local.</li>
+      <li>Sem contratação de demanda – pagam apenas o custo de disponibilidade.</li>
+      <li>Isentos de cobrança por energia reativa.</li>
+      <li>Possibilidade de adesão à Tarifa Branca conforme perfil de consumo.</li>
+    </ul>
+  </div>
+
+  <div class="section-box">
+    <h4>Tarifa Branca</h4>
+
+    <ul class="bullet-list">
+      <li>Aplica valores diferenciados conforme o horário do dia.</li>
+      <li><strong>Ponta:</strong> tarifa mais cara (geralmente início da noite).</li>
+      <li><strong>Fora de ponta:</strong> tarifa mais barata (madrugada e meio do dia).</li>
+      <li>Vantajosa para consumidores que conseguem deslocar consumo fora do horário de ponta.</li>
+      <li>Pode não compensar quando o consumo é concentrado no período noturno.</li>
+      <li>
+        <strong>Economia (%):</strong>
+        (Consumo fora de ponta ÷ Consumo total) × Diferença tarifária média.
+      </li>
+    </ul>
+  </div>
+</div>
+
+
+<!-- COMPARATIVO TARIFÁRIO -->
+<div class="page">
+
+  <h3>Comparativo Rápido</h3>
+
+  <table class="compare-table">
+    <thead>
+      <tr>
+        <th>Aspecto</th>
+        <th>Grupo B</th>
+        <th>Tarifa Branca</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Tensão</td>
+        <td>Até 2,3 kV</td>
+        <td>Até 2,3 kV</td>
+      </tr>
+      <tr>
+        <td>Fornecedor</td>
+        <td>Distribuidora local</td>
+        <td>Distribuidora local</td>
+      </tr>
+      <tr>
+        <td>Demanda</td>
+        <td>Não exigida</td>
+        <td>Não exigida</td>
+      </tr>
+      <tr>
+        <td>Tarifa</td>
+        <td>Única</td>
+        <td>Variável por horário</td>
+      </tr>
+      <tr>
+        <td>Vantagem</td>
+        <td>Simplicidade</td>
+        <td>Economia com consumo flexível</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="info-cards">
+    <div class="info-card">
+      <strong>CPFL Paulista</strong><br>
+      Horário de Ponta: <strong>18h às 21h</strong>
+    </div>
+
+    <div class="info-card">
+      <strong>Aplicação</strong><br>
+      Tarifa Branca disponível para residências e pequenos comércios.
+    </div>
+
+    <div class="info-card success">
+      <strong>Vantagem</strong><br>
+      Redução de custos quando o consumo ocorre fora do horário de ponta.
+    </div>
+
+    <div class="info-card warning">
+      <strong>Atenção</strong><br>
+      Consumo concentrado no horário de ponta pode elevar o valor da fatura.
+    </div>
+  </div>
+
+  <div class="formula-box">
+    <strong>Fórmula:</strong><br>
+    Economia (%) = (Consumo fora de ponta ÷ Consumo total) × Diferença tarifária média
+  </div>
+
+</div>
+
     <!-- PÁGINA 5: CONCLUSÃO IA -->
     <div class="page">
         <h3>Análise de Especialista (IA)</h3>
@@ -313,7 +968,8 @@
         </div>
 
         <div style="margin-top: 100px; text-align: center; border-top: 1px solid var(--slate-100); padding-top: 50px;">
-            <p style="font-size: 10px; color: var(--slate-400); text-transform: uppercase; letter-spacing: 2px;">Documento gerado automaticamente pela plataforma</p>
+            <p style="font-size: 10px; color: var(--slate-400); text-transform: uppercase; letter-spacing: 2px;">
+                Documento gerado automaticamente pela plataforma</p>
             <h2 style="font-weight: 900; color: var(--primary); margin-top: 10px;">AUDIT ENERGY</h2>
         </div>
 
@@ -328,32 +984,33 @@
         new Chart(ctx, {
             type: 'bar',
             data: {
-                labels: {{{chartLabels}}},
-                datasets: [{
-                    label: 'Consumo (kWh)',
-                    data: {{{chartValues}}},
-                    backgroundColor: '#10b981',
-                    borderRadius: 8,
-                    borderSkipped: false,
+                labels: {{{ chartLabels }}},
+            datasets: [{
+                label: 'Consumo (kWh)',
+                data: {{{ chartValues }}},
+            backgroundColor: '#10b981',
+            borderRadius: 8,
+            borderSkipped: false,
                 }]
             },
             options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: { display: false }
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    grid: { color: '#f1f5f9' }
                 },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        grid: { color: '#f1f5f9' }
-                    },
-                    x: {
-                        grid: { display: false }
-                    }
+                x: {
+                    grid: { display: false }
                 }
             }
+        }
         });
     </script>
 </body>
+
 </html>
