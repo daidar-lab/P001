@@ -25,18 +25,18 @@ export interface ValidationWarning {
 
 // Mapeamento de sinônimos para colunas do CSV (flexibilidade para PowerHub e outros formatos)
 export const COLUMN_MAPPING: Record<string, string[]> = {
-  periodo_referencia: ['referencia', 'ref', 'mês/ano', 'periodo', 'periodo_referencia'],
-  cliente_nome: ['cliente', 'razão social', 'nome', 'cliente_nome', 'razao social'],
-  numero_unidade: ['número da unidade', 'uc', 'unidade consumidora', 'unidade', 'numero_unidade', 'numero da unidade'],
-  concessionaria: ['concessionária', 'distribuidora', 'empresa', 'concessionaria'],
-  periodo_medicao_inicio: ['início medição', 'data inicial', 'medicao inicio', 'periodo_medicao_inicio', 'inicio medicao'],
-  periodo_medicao_fim: ['fim medição', 'data final', 'medicao fim', 'periodo_medicao_fim', 'fim medicao'],
-  classe_tarifaria: ['classe', 'classe tarifária', 'tipo', 'classe_tarifaria', 'classe tarifaria'],
+  periodo_referencia: ['referencia', 'ref', 'mês/ano', 'periodo', 'periodo_referencia', 'mês de referência', 'mes de referencia', 'periodo de referencia'],
+  cliente_nome: ['cliente', 'razão social', 'nome', 'cliente_nome', 'razao social', 'nome do site', 'nome do cliente'],
+  numero_unidade: ['número da unidade', 'uc', 'unidade consumidora', 'unidade', 'numero_unidade', 'numero da unidade', 'instalação', 'instalacao'],
+  concessionaria: ['concessionária', 'distribuidora', 'empresa', 'concessionaria', 'nome da concessionária/comercializadora', 'nome da concessionaria/comercializadora'],
+  periodo_medicao_inicio: ['início medição', 'data inicial', 'medicao inicio', 'periodo_medicao_inicio', 'inicio medicao', 'data leitura anterior'],
+  periodo_medicao_fim: ['fim medição', 'data final', 'medicao fim', 'periodo_medicao_fim', 'fim medicao', 'data leitura atualizada'],
+  classe_tarifaria: ['classe', 'classe tarifária', 'tipo', 'classe_tarifaria', 'classe tarifaria', 'subgrupo', 'modalidadetarifária'],
   data_emissao: ['emissão', 'data emissão', 'data_emissao', 'emissao', 'data emissao'],
-  valor_total: ['total', 'valor total', 'valor da fatura', 'valor_total', 'valor total'],
-  consumo_kwh: ['kwh', 'consumo kwh', 'consumo', 'consumo_kwh', 'consumo kwh'],
-  valor_cip: ['cip', 'iluminação pública', 'cosip', 'valor_cip', 'iluminacao publica'],
-  bandeira_tarifaria: ['bandeira', 'bandeira tarifária', 'bandeira_tarifaria', 'bandeira tarifaria'],
+  valor_total: ['total', 'valor total', 'valor da fatura', 'valor_total', 'valor total', 'valor total r$'],
+  consumo_kwh: ['kwh', 'consumo kwh', 'consumo', 'consumo_kwh', 'consumo kwh', 'medida consumo tusd - fora ponta', 'medida consumo te - fora ponta'],
+  valor_cip: ['cip', 'iluminação pública', 'cosip', 'valor_cip', 'iluminacao publica', 'serviços - iluminação pública r$', 'servicos - iluminacao publica r$'],
+  bandeira_tarifaria: ['bandeira', 'bandeira tarifária', 'bandeira_tarifaria', 'bandeira tarifaria', 'consumo te - adicional bandeira amarela r$', 'consumo te - adicional bandeira vermelha (patamar 1) r$'],
   consumo_kwh_mes_anterior: ['anterior kwh', 'consumo anterior', 'consumo mes anterior', 'consumo_kwh_mes_anterior'],
 };
 
@@ -100,7 +100,6 @@ export const REQUIRED_COLUMNS = [
   'consumo_kwh',
   'valor_cip',
   'bandeira_tarifaria',
-  'consumo_kwh_mes_anterior',
 ] as const;
 
 /**
@@ -216,7 +215,8 @@ function isValidNumber(value: string): boolean {
  * Suporta: DD/MM/YYYY, YYYY-MM-DD, DD-MM-YYYY, MM/YYYY
  */
 function isValidDate(value: string): boolean {
-  const cleaned = value.trim();
+  // Pega apenas a parte da data, ignorando hora (split por espaço ou T)
+  const cleaned = value.trim().split(/[ T]/)[0];
   return (
     /^\d{2}\/\d{2}\/\d{4}$/.test(cleaned) ||
     /^\d{4}-\d{2}-\d{2}$/.test(cleaned) ||

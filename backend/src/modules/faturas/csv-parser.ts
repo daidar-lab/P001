@@ -1,6 +1,7 @@
 // Parser CSV — Converte linhas CSV em objetos tipados
 import { parse } from 'csv-parse';
 import { Readable } from 'stream';
+import fs from 'fs';
 
 export interface ParsedCsvRow {
   periodo_referencia: string;
@@ -95,6 +96,14 @@ export async function parseXlsxFile(filePath: string): Promise<CsvParseResult> {
     rows: rows as ParsedCsvRow[],
     rawRowCount: rows.length,
   };
+}
+
+/**
+ * Faz o parse de um arquivo CSV
+ */
+export async function parseCsvFile(filePath: string): Promise<CsvParseResult> {
+  const buffer = fs.readFileSync(filePath);
+  return parseCsvBuffer(buffer);
 }
 
 /**
