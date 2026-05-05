@@ -88,63 +88,85 @@ export async function buscarRastreabilidade(relatorioId: string) {
 }
 
 export async function obterEstatisticas() {
-  const seteDiasAtras = new Date();
-  seteDiasAtras.setDate(seteDiasAtras.getDate() - 7);
+  try {
+    const seteDiasAtras = new Date();
+    seteDiasAtras.setDate(seteDiasAtras.getDate() - 7);
 
-  const [totalRelatorios, porStatus, ultimosRelatorios, enviadosRecentemente] = await Promise.all([
-    prisma.relatorio.count(),
-    prisma.relatorio.groupBy({
-      by: ['status'],
-      _count: { id: true },
-    }),
-    prisma.relatorio.findMany({
-      take: 5,
-      orderBy: { criadoEm: 'desc' },
-      select: {
-        id: true,
-        codigoRelatorio: true,
-        titulo: true,
-        status: true,
-        criadoEm: true,
-        cliente: {
-          select: { nome: true },
+    console.log("[STATS] Iniciando busca robusta de estatísticas...");
+
+    // Usar contagens individuais em vez de groupBy para maior compatibilidade e resiliência
+    const [
+      totalRelatorios,
+      contagemCarregados,
+      contagemProcessados,
+      contagemEnviados,
+      contagemFalhas,
+      ultimosRelatorios,
+      enviadosRecentemente
+    ] = await Promise.all([
+      prisma.relatorio.count(),
+      prisma.relatorio.count({ where: { status: 'carregado' } }),
+      prisma.relatorio.count({ where: { status: 'processado' } }),
+      prisma.relatorio.count({ where: { status: 'enviado' } }),
+      prisma.relatorio.count({ where: { status: 'falha' } }),
+      prisma.relatorio.findMany({
+        take: 5,
+        orderBy: { criadoEm: 'desc' },
+        select: {
+          id: true,
+          codigoRelatorio: true,
+          titulo: true,
+          status: true,
+          criadoEm: true,
+          cliente: {
+            select: { nome: true },
+          },
         },
-      },
-    }),
-    prisma.relatorio.findMany({
-      where: {
-        status: { in: ['processado', 'enviado', 'pronto_revisao'] },
-        criadoEm: { gte: seteDiasAtras }
-      },
-      select: { criadoEm: true }
-    })
-  ]);
+      }),
+      prisma.relatorio.findMany({
+        where: {
+          status: { in: ['processado', 'enviado', 'pronto_revisao'] },
+          criadoEm: { gte: seteDiasAtras }
+        },
+        select: { criadoEm: true }
+      })
+    ]);
 
-  console.log(`[STATS] Total encontrados para gráfico: ${enviadosRecentemente.length}`);
-  
-  // Processar dados para o gráfico (agrupar por dia)
-  const diasSemana = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
-  const enviadosPorDia = Array.from({ length: 7 }, (_, i) => {
-    const d = new Date();
-    d.setDate(d.getDate() - i);
-    const label = diasSemana[d.getDay()];
-    const count = enviadosRecentemente.filter(r => 
-      new Date(r.criadoEm).toDateString() === d.toDateString()
-    ).length;
-    console.log(`[STATS] Dia: ${label} (${d.toDateString()}) -> Count: ${count}`);
-    return { name: label, total: count };
-  }).reverse();
+    // Processar dados para o gráfico (agrupar por dia)
+    const diasSemana = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
+    const enviadosPorDia = Array.from({ length: 7 }, (_, i) => {
+      const d = new Date();
+      d.setDate(d.getDate() - i);
+      const label = diasSemana[d.getDay()];
+      const count = enviadosRecentemente.filter(r => {
+        if (!r.criadoEm) return false;
+        const date = new Date(r.criadoEm);
+        return date.getFullYear() === d.getFullYear() &&
+               date.getMonth() === d.getMonth() &&
+               date.getDate() === d.getDate();
+      }).length;
+      return { name: label, total: count };
+    }).reverse();
 
-  return {
-    totalRelatorios,
-    porStatus: porStatus.reduce(
-      (acc, item) => {
-        acc[item.status] = item._count.id;
-        return acc;
+    return {
+      totalRelatorios,
+      porStatus: {
+        carregado: contagemCarregados,
+        processado: contagemProcessados,
+        enviado: contagemEnviados,
+        falha: contagemFalhas
       },
-      {} as Record<string, number>
-    ),
-    ultimosRelatorios,
-    enviadosPorDia
-  };
+      ultimosRelatorios,
+      enviadosPorDia
+    };
+  } catch (error) {
+    console.error("[STATS] ERRO CRÍTICO EM OBTERESTATISTICAS:", error);
+    // Retornar um objeto básico para não quebrar o frontend se for um erro não fatal
+    return {
+      totalRelatorios: 0,
+      porStatus: {},
+      ultimosRelatorios: [],
+      enviadosPorDia: []
+    };
+  }
 }

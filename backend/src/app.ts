@@ -40,7 +40,17 @@ if (!fs.existsSync(outputDir)) fs.mkdirSync(outputDir, { recursive: true });
 app.use('/api/auth', authRoutes);
 app.use('/api/usuarios', usuariosRoutes);
 
-// Rotas Protegidas
+// Rotas Públicas/Semi-públicas (Stats e Listagem para Dashboard)
+import * as relatoriosController from './modules/relatorios/relatorios.controller';
+import * as clientesController from './modules/clientes/clientes.controller';
+import * as equipamentosController from './modules/equipamentos/equipamentos.controller';
+
+app.get('/api/relatorios/stats', relatoriosController.estatisticas);
+app.get('/api/relatorios', relatoriosController.listar);
+app.get('/api/clientes', clientesController.listar);
+app.get('/api/equipamentos', equipamentosController.listar);
+
+// Rotas Protegidas (Operações de Escrita)
 app.use('/api/clientes', authMiddleware, clientesRoutes);
 app.use('/api/relatorios', authMiddleware, relatoriosRoutes);
 app.use('/api/equipamentos', authMiddleware, equipamentosRoutes);

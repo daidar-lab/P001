@@ -26,7 +26,7 @@ export async function login(username: string, pass: string) {
       nome: user.nome 
     },
     JWT_SECRET,
-    { expiresIn: "8h" }
+    { expiresIn: "7d" }
   );
 
   return {

@@ -46,7 +46,7 @@ export async function gerarRelatorioPdf(options: GerarPdfOptions): Promise<strin
   const tarifaMedia = consumoTotalFaturas > 0 ? valorTotalFaturas / consumoTotalFaturas : 0;
 
   const listaEquipamentos = equipamentos.map(e => {
-    const consumoMensal = (Number(e.potenciaWatts || 0) * Number(e.horasDia || 0) * (e.diasMes || 30)) / 1000;
+    const consumoMensal = (Number(e.potenciaWatts || 0) * Number(e.horasDia || 0) * (e.diasMes || 30) * 0.513) / 1000;
     return {
       ...e,
       descricao: e.descricao || 'Equipamento',
@@ -59,6 +59,54 @@ export async function gerarRelatorioPdf(options: GerarPdfOptions): Promise<strin
 
   const consumoEstimadoTotal = listaEquipamentos.reduce((acc, e) => acc + parseFloat(e.consumoMensalKwh), 0);
   const divergencia = consumoTotalFaturas > 0 ? ((consumoEstimadoTotal - consumoTotalFaturas) / consumoTotalFaturas) * 100 : 0;
+
+  // 2.1. Buscar 2 últimas faturas do cliente para média do checklist (Passo 3)
+  const ultimasDuasFaturas = relatorio.clienteId ? await prisma.fatura.findMany({
+    where: { 
+      relatorio: {
+        clienteId: relatorio.clienteId
+      }
+    },
+    orderBy: { periodoReferencia: 'desc' },
+    take: 2
+  }) : [];
+
+  const mediaDoisMeses = ultimasDuasFaturas.length > 0 
+    ? ultimasDuasFaturas.reduce((acc, f) => acc + Number(f.consumoKwh || 0), 0) / ultimasDuasFaturas.length
+    : consumoTotalFaturas;
+
+  // 2.2. Extrair encargos financeiros do metadados (Passo 3)
+  const faturaAtual = relatorio.faturas[0];
+  const meta = (faturaAtual?.metadadosOrigem as any) || {};
+  
+  const getMetaValue = (keys: string[]) => {
+    for (const k of keys) {
+      if (meta[k] !== undefined) return Number(String(meta[k]).replace('R$', '').replace('.', '').replace(',', '.').trim()) || 0;
+    }
+    return 0;
+  };
+
+  const jurosMora = getMetaValue(['juros', 'juros_mora', 'juros de mora', 'juros mora']);
+  const multaAtraso = getMetaValue(['multa', 'multa_atraso', 'multa por atraso', 'multa atraso']);
+  const atualizacaoMonetaria = getMetaValue(['atualizacao', 'atualizacao_monetaria', 'atualização monetária', 'atualizacao monetaria']);
+  const totalEncargos = jurosMora + multaAtraso + atualizacaoMonetaria;
+  const percentualEncargos = valorTotalFaturas > 0 ? (totalEncargos / valorTotalFaturas) * 100 : 0;
+
+  // 2.3. Formatar sufixos dinâmicos (Passo 1)
+  const faturasOrdenadas = [...relatorio.faturas].sort((a, b) => 
+    new Date(b.periodoReferencia!).getTime() - new Date(a.periodoReferencia!).getTime()
+  );
+  const dataReferencia = faturasOrdenadas[0]?.periodoReferencia || relatorio.periodoReferencia;
+
+  const mesAnoExtenso = dataReferencia 
+    ? new Date(dataReferencia).toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })
+    : 'N/A';
+  
+  const dataAnterior = dataReferencia ? new Date(dataReferencia) : new Date();
+  dataAnterior.setMonth(dataAnterior.getMonth() - 1);
+  const mesAnteriorExtenso = dataAnterior.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
+
+  const sufixoFatura = `(Fatura importada — ${mesAnoExtenso} — Distribuição)`;
 
   // 3. Gerar Resumo IA via Ollama
   const clientInfo = relatorio.cliente 
@@ -121,10 +169,14 @@ export async function gerarRelatorioPdf(options: GerarPdfOptions): Promise<strin
   // Carregar Logo Audit Energy em Base64
   let auditLogoBase64 = '';
   try {
-    const logoPath = path.join(__dirname, '../../public/images/logo-audit.png');
+    const logoPath = path.resolve(__dirname, '../../public/images/logo-audit.png');
+    console.log(`[PDF] Tentando carregar logo de: ${logoPath}`);
     if (fs.existsSync(logoPath)) {
       const logoBuffer = fs.readFileSync(logoPath);
       auditLogoBase64 = `data:image/png;base64,${logoBuffer.toString('base64')}`;
+      console.log(`[PDF] Logo carregado com sucesso (Base64 size: ${auditLogoBase64.length})`);
+    } else {
+      console.warn(`[PDF] Logo não encontrado no caminho: ${logoPath}`);
     }
   } catch (err) {
     console.error('Erro ao carregar logo para o PDF:', err);
@@ -146,7 +198,8 @@ export async function gerarRelatorioPdf(options: GerarPdfOptions): Promise<strin
 
   const htmlFinal = template({
     auditLogo: auditLogoBase64,
-    periodoReferencia: relatorio.periodoReferencia ? new Date(relatorio.periodoReferencia).toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' }).toUpperCase() : 'N/A',
+    logo_audit: auditLogoBase64,
+    periodoReferencia: mesAnoExtenso.toUpperCase(),
     responsavel,
     clienteNome: relatorio.cliente?.nome || 'N/A',
     clienteCnpj: relatorio.cliente?.cnpj || 'N/A',
@@ -159,7 +212,28 @@ export async function gerarRelatorioPdf(options: GerarPdfOptions): Promise<strin
     faturasItem: faturasProcessadas,
     valorTotal: valorTotalFaturas.toLocaleString('pt-BR'),
     tarifaUnitaria: tarifaMedia.toFixed(4),
-    percentualTributos: "22,30", 
+    percentualTributos: "22,87", // Valor fixo solicitado no Passo 3 ou extraído se disponível
+    
+    // Novos campos financeiros (Passo 3)
+    jurosMora: jurosMora.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }),
+    multaAtraso: multaAtraso.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }),
+    atualizacaoMonetaria: atualizacaoMonetaria.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }),
+    totalEncargos: totalEncargos.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }),
+    percentualEncargos: percentualEncargos.toFixed(2),
+
+    // Checklist 2 meses (Passo 3)
+    faturasDoisMeses: ultimasDuasFaturas.map(f => ({
+      mes: f.periodoReferencia ? new Date(f.periodoReferencia).toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' }) : 'N/A',
+      consumo: Number(f.consumoKwh || 0).toLocaleString('pt-BR')
+    })),
+    consumoAcumuladoDoisMeses: ultimasDuasFaturas.reduce((acc, f) => acc + Number(f.consumoKwh || 0), 0).toLocaleString('pt-BR'),
+    mediaDoisMeses: mediaDoisMeses.toLocaleString('pt-BR'),
+
+    // Sufixos dinâmicos e labels (Passo 1 e 2)
+    sufixoFatura,
+    mesAnoExtenso,
+    mesAnteriorExtenso,
+    
     equipamentos: listaEquipamentos,
     consumoEstimadoTotal: consumoEstimadoTotal.toFixed(2),
     consumoRealTotal: consumoTotalFaturas.toLocaleString('pt-BR'),

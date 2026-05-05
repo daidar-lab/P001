@@ -101,7 +101,7 @@ export async function estatisticas(_req: Request, res: Response, next: NextFunct
 
 export async function downloadPdf(req: Request, res: Response, next: NextFunction) {
   try {
-    const { id } = req.params;
+    const id = req.params.id as string;
     const relatorio = await relatoriosService.buscarRelatorio(id);
 
     if (!relatorio) {
@@ -129,7 +129,7 @@ export async function downloadPdf(req: Request, res: Response, next: NextFunctio
 
 export async function gerarManual(req: Request, res: Response, next: NextFunction) {
   try {
-    const { id } = req.params;
+    const id = req.params.id as string;
     const { gerarRelatorioPdf } = await import('./relatorio-pdf.service');
     
     const pdfPath = await gerarRelatorioPdf({ relatorioId: id });

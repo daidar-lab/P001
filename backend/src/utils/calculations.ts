@@ -60,10 +60,12 @@ export function decimalToNumber(value: Prisma.Decimal | null | undefined): numbe
  * Gera código de relatório único
  * Formato: AE-YYYYMM-XXXX (ex: AE-202601-0001)
  */
-export function gerarCodigoRelatorio(periodoReferencia?: Date, sequencial?: number): string {
+export function gerarCodigoRelatorio(periodoReferencia?: Date): string {
   const now = periodoReferencia || new Date();
   const year = now.getFullYear();
   const month = String(now.getMonth() + 1).padStart(2, '0');
-  const seq = String(sequencial || Math.floor(Math.random() * 9999) + 1).padStart(4, '0');
+  
+  // Aumentar aleatoriedade para 6 dígitos para evitar colisões
+  const seq = String(Math.floor(Math.random() * 999999) + 1).padStart(6, '0');
   return `AE-${year}${month}-${seq}`;
 }
